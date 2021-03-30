@@ -1,0 +1,14 @@
+.display-div{
+    border-top: 1px solid lightgray;
+    width: 700px;
+
+    .types-div > p:hover{
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+    p.p-active {
+        font-weight: bold;
+        text-decoration: overline;
+    }
+}

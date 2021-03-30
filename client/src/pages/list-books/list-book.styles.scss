@@ -1,0 +1,11 @@
+.list-book {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+  margin-left: 40px;
+
+  .uploader {
+    width: 200px;
+    margin-right: 50px;
+  }
+}
