@@ -21,10 +21,6 @@ const bookSchema = mongoose.Schema(
       type: String,
       required: [true, "Please enter the title of the book"],
     },
-    subject: {
-      type: String,
-      required: [true, "Please enter the subject of the book"],
-    },
     keyword: {
       type: String,
       required: [true, "Please enter the keyword of the book"],
@@ -44,12 +40,36 @@ const bookSchema = mongoose.Schema(
       type: String,
       required: [true, "Please enter the price of the book"],
     },
-
-    status: {
+    printLength: {
+      type: Number,
+    },
+    language: {
       type: String,
       required: true
-    }
+    },
+    publisher: {
+      type: String,
+    },
+    publicationDate: {
+      type: Date
+    },
+    status: {
+      type: String,
+      required: true,
+    },
 
+    description: {
+      type: String,
+    },
+    reviews: {
+      type: [
+        {
+          userId: String,
+          rating: Number,
+          comment: String,
+        },
+      ],
+    },
   },
   { timestamps: { createdAt: "created_at" } }
 );

@@ -3,56 +3,41 @@ const Book = require("../model/bookSchema");
 const User = require("../model/userSchema");
 
 module.exports.addBookToDB = async (req, res, next) => {
-  const {
-    ownerId,
-    author,
-    title,
-    subject,
-    keyword,
-    category,
-    photo,
-    price,
-    condition,
-    isbn,
-  } = req.body;
+  let data = req.body;
+  const photoFile = req.body.photo;
+  delete data["photo"];
+  console.log(data);
 
   try {
-    const uploadedResponse = await cloudinary.uploader.upload(photo, {
-      folder: "book-exchange/user-books/" + ownerId + "/",
+    const uploadedResponse = await cloudinary.uploader.upload(photoFile, {
+      folder: "book-exchange/user-books/" + data.ownerId + "/",
     });
     console.log("uploaded responce =>", uploadedResponse);
-
+    
+    console.log(date)
     const book = await Book.create({
-      ownerId,
-      author,
-      title,
-      subject,
-      keyword,
-      category,
+      ...data,
       photoId: uploadedResponse.secure_url,
-      price,
       status: "selling",
-      condition,
-      isbn,
     });
 
     const savedBook = await book.save();
 
-    const user = await User.findOne({ _id: ownerId });
+    const user = await User.findOne({ _id: data.ownerId });
 
     let currentlySelling = [...user.currentlySelling, savedBook._id];
 
     await user.updateOne({ currentlySelling });
     res.send({ bookId: savedBook._id });
   } catch (e) {
-    console.log("Cloudinary Error", e);
+    console.log(e);
   }
 };
 
 module.exports.searchBook = async (req, res, next) => {
   let data = req.body;
   for (let key in data) {
-    if (data[key] === '') {
+    if (data[key] === "") {
       delete data[key];
     }
   }
@@ -66,20 +51,21 @@ module.exports.searchBook = async (req, res, next) => {
       .status(404)
       .send({ errors: { msg: "Books not found with these details" } });
 
-  res.send({ books });
+  
+
+  res.send({ books: books.reverse() });
 };
 
+module.exports.getBookById = async (req, res, next) => {
+  const { id } = req.params;
+  console.log("id", id);
 
-module.exports.getBookById = async (req,res,next) => {
-  const {id} = req.params;
-  console.log("id", id)
-
-  const book = await Book.findOne({ _id: id});
+  const book = await Book.findOne({ _id: id });
 
   if (!book)
     return res
       .status(404)
       .send({ errors: { msg: "Books not found with these details" } });
 
-  res.send({book})
-}
+  res.send({ book });
+};

@@ -25,21 +25,19 @@ const App = () => {
         <Route path="/search" component={SearchBook} />
         <Route
           path="/book/:id"
-          render={({
-            match: {
-              params
-            },
-          }) => <BookPage bookId={params.id} />}
+          render={({ match: { params } }) => <BookPage bookId={params.id} />}
         />
         <Route
           path="/list-book"
-          render={() => (currentUser ? <ListBook /> : <SignInAndSignUpPage />)}
+          render={(props) =>
+            currentUser ? <ListBook /> : <SignInAndSignUpPage />
+          }
         />
 
         <Route
           path="/signin"
-          render={() =>
-            currentUser ? <Redirect to="/" /> : <SignInAndSignUpPage />
+          render={(props) =>
+            currentUser ? props.history.goBack() : <SignInAndSignUpPage />
           }
         />
       </Switch>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Form } from "react-bootstrap";
 import FormInput from "../form-input/form-input.component";
 import CustomButton from "../custom-button/custom-button.component";
 import "./book-submit-form.styles.scss";
@@ -7,19 +8,26 @@ import AlertDialog from "../alert-dialog/alert-dialog.component";
 import axios from "axios";
 import { useStateValue } from "../../contexts/state.provider";
 import Spinner from "../spinner/spinner.component";
+import DatePicker from "react-datepicker";
 
 const BookSubmitForm = () => {
-  const { state: {currentUser} } = useStateValue();
+  const {
+    state: { currentUser },
+  } = useStateValue();
   const [showSpinner, setShowSpinner] = useState(false);
   const [alert, setAlert] = useState({ show: false, text: "" });
   const [form, setForm] = useState({
     author: "",
     title: "",
-    subject: "",
     keyword: "",
     category: "",
     condition: "",
+    description: "",
     isbn: "",
+    printLength: 0,
+    language: "",
+    publisher: "",
+    publicationDate: new Date(),
     price: 0,
     photo: null,
   });
@@ -27,13 +35,21 @@ const BookSubmitForm = () => {
   const {
     author,
     title,
-    subject,
-    keyword,
     category,
-    condition,
+    keyword,
+    printLength,
+    language,
+    publisher,
+    publicationDate,
     isbn,
     price,
   } = form;
+
+  const handleConditionSelect = (e) => {
+    const value = e.target.value;
+    console.log("condition", value);
+    setForm({ ...form, condition: value });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -46,15 +62,16 @@ const BookSubmitForm = () => {
     axios
       .post("/books/list", {
         ...form,
+        publicationDate: publicationDate,
         ownerId: currentUser.userId,
       })
       .then((res) => {
         console.log("Res", res.data);
-        
+
         setShowSpinner(false);
         setAlert({
           show: !alert.show,
-          text: "Book details uploaded successfully!",
+          text: "Book uploaded successfully!",
         });
       })
       .catch((e) => {
@@ -74,6 +91,11 @@ const BookSubmitForm = () => {
       keyword: "",
       category: "",
       condition: "",
+      language: "",
+      description: "",
+      printLength: 0,
+      publicationDate: new Date(),
+      publisher: "",
       isbn: "",
       price: 0,
       photo: null,
@@ -104,7 +126,7 @@ const BookSubmitForm = () => {
           />
           <div className="d-flex flex-column">
             <span>Enter details of the book below</span>
-            <form className="list-form" onSubmit={handleSubmit}>
+            <Form className="list-form" onSubmit={handleSubmit}>
               <FormInput
                 type="text"
                 name="title"
@@ -121,14 +143,7 @@ const BookSubmitForm = () => {
                 label="Author"
                 required
               ></FormInput>
-              <FormInput
-                type="text"
-                name="subject"
-                value={subject}
-                onChange={onChange}
-                label="Subject"
-                required
-              ></FormInput>
+
               <FormInput
                 type="text"
                 name="category"
@@ -153,13 +168,52 @@ const BookSubmitForm = () => {
                 label="ISBN"
               ></FormInput>
               <FormInput
-                type="text"
-                name="condition"
-                value={condition}
+                type="number"
+                min="0"
+                name="printLength"
+                value={printLength}
                 onChange={onChange}
-                label="Condition"
-                required
+                label="Number of Pages"
               ></FormInput>
+              <FormInput
+                type="text"
+                name="language"
+                value={language}
+                onChange={onChange}
+                label="Language"
+              ></FormInput>
+              <FormInput
+                type="text"
+                name="publisher"
+                value={publisher}
+                onChange={onChange}
+                label="Publisher"
+              ></FormInput>
+              <div className="d-flex flex-column mb-4">
+                <label>Publication Date: </label>
+                <DatePicker
+                  selected={publicationDate}
+                  onChange={(date) =>
+                    setForm({
+                      ...form,
+                      publicationDate: date,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="select d-flex flex-column">
+                <label>Condition</label>
+                <select className="select-css" onChange={handleConditionSelect}>
+                  <option>Select Condition</option>
+                  <option>Fine/Like New (F)</option>
+                  <option>Near Fine (NF)</option>
+                  <option>Very Good (VG)</option>
+                  <option>Good (G)</option>
+                  <option>Fair (FR)</option>
+                  <option>Poor (P)</option>
+                </select>
+              </div>
               <FormInput
                 type="number"
                 min="0"
@@ -170,10 +224,20 @@ const BookSubmitForm = () => {
                 required
               ></FormInput>
 
+              <div className="group">
+                <label>Description</label>
+                <textarea
+                  onChange={(e)=> setForm({...form, description: e.target.value})}
+                  className="b-textarea"
+                  spellCheck={true}
+                  rows={6}
+                ></textarea>
+              </div>
+
               <div className="cust-btn">
                 <CustomButton type="submit">Submit</CustomButton>
               </div>
-            </form>
+            </Form>
           </div>
         </div>
       )}

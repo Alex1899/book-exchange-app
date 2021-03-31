@@ -3,13 +3,10 @@ import FormInput from "../form-input/form-input.component";
 import CustomButton from "../custom-button/custom-button.component";
 import AlertDialog from "../alert-dialog/alert-dialog.component";
 import axios from "axios";
-import { useStateValue } from "../../contexts/state.provider";
+
 import Spinner from "../spinner/spinner.component";
 
 const BookSearchForm = ({ setData }) => {
-  const {
-    state: { currentUser },
-  } = useStateValue();
   const [showSpinner, setShowSpinner] = useState(false);
   const [alert, setAlert] = useState({ show: false, text: "" });
   const [form, setForm] = useState({
@@ -23,6 +20,11 @@ const BookSearchForm = ({ setData }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!author && !title && !keyword && !category) {
+      setAlert({ show: true, text: "Please use at least one search method" });
+      return;
+    }
 
     setShowSpinner(true);
     axios
@@ -76,7 +78,6 @@ const BookSearchForm = ({ setData }) => {
                 value={title}
                 onChange={onChange}
                 label="Title"
-                required
               ></FormInput>
               <FormInput
                 type="text"
@@ -84,7 +85,6 @@ const BookSearchForm = ({ setData }) => {
                 value={author}
                 onChange={onChange}
                 label="Author"
-                
               ></FormInput>
 
               <FormInput
@@ -93,7 +93,6 @@ const BookSearchForm = ({ setData }) => {
                 value={category}
                 onChange={onChange}
                 label="Category"
-        
               ></FormInput>
               <FormInput
                 type="text"
@@ -101,7 +100,6 @@ const BookSearchForm = ({ setData }) => {
                 value={keyword}
                 onChange={onChange}
                 label="Keyword"
-          
               ></FormInput>
               <div className="cust-btn">
                 <CustomButton type="submit">Search</CustomButton>

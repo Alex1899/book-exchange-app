@@ -1,0 +1,33 @@
+.book-page-info > p {
+  margin: 0;
+}
+
+.condition-div,
+.price-div {
+  border: 1px solid lightgray;
+  padding: 0 10px;
+  border-radius: 5px;
+}
+
+.requested-div {
+  width: 100%;
+  background-color: black;
+  border: 1px solid black;
+  height: 50px;
+  p, svg {
+    color: white;
+  }
+
+}
+
+.requested-div:hover {
+  background-color: white;
+  p,svg {
+    color: black;
+  }
+}
+
+.condition-div > p,
+.price-div > P {
+  margin: 0;
+}

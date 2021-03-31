@@ -74,11 +74,11 @@ const BooksDisplay = () => {
       <div className="d-flex flex-column align-center mt-4">
         {books ? (
           books.data.length > 0 ? (
-            books.data.map((book, i) =><> 
+            books.data.map((book, i) =><div key={i}> 
             <ProfileBook book={book}/> 
             <HorizontalLine color="lightgrey"/>
             
-            </>)
+            </div>)
           ) : (
             <div>User has no {books.type} books</div>
           )

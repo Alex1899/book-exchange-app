@@ -29,12 +29,12 @@ const SearchBook = () => {
         <BookSearchForm setData={(data) => setData(data)} />
 
         {/* Search Results */}
-        <div className="d-flex flex-column w-50 align-items-center" style={{ padding: 30, backgroundColor: "white"}}>
+        <div className="d-flex flex-column w-50 " style={{ padding: 30, backgroundColor: "white"}}>
           {!data ? (
             <p className="text-center">Search results will appear here</p>
           ) : data.length > 0 ? (
             data.map((book, i) => (
-              <div key={i}>
+              <div className="d-flex flex-column" key={i}>
                 <ProfileBook  book={book} />
                 <HorizontalLine color="lightgrey" />
               </div>
