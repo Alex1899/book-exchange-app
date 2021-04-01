@@ -85,14 +85,14 @@ module.exports.requestBook = async (req, res, next) => {
       from: process.env.SERVER_EMAIL,
       to: bookOwner.email,
       subject: `Southampton Uni Book Exchange - Request For Book "${book.title}"`,
-      text: `Hello, ${bookOwner.fullName}! \n\nYour book "${book.title}" has been requested. Please, contact ${bookOwner.fullname} at ${user.email} to arrange for exchange. \n\nMany thanks,\nBook Exchange Team`,
+      text: `Hello, ${bookOwner.fullname}! \n\nYour book "${book.title}" has been requested. Please, contact ${bookOwner.fullname} at ${user.email} to arrange for exchange. \n\nMany thanks,\nBook Exchange Team`,
     };
 
     const mailToBuyer = {
       from: process.env.SERVER_EMAIL,
       to: user.email,
       subject: `Southampton Uni Book Exchange - Request For Book "${book.title}"`,
-      text: `Hello, ${user.fullName}! \n\nYour request for the "${book.title}" book has been noted. You will be contacted by the seller within 48 hours to arrange for the exchange.\n\nThank you very much.\n\nBest regards,\nBook Exchange Team`,
+      text: `Hello, ${user.fullname}! \n\nYour request for the "${book.title}" book has been noted. You will be contacted by the seller within 48 hours to arrange for the exchange.\n\nThank you very much.\n\nBest regards,\nBook Exchange Team`,
     };
 
     sendMail(mailToOwner);
@@ -124,19 +124,21 @@ module.exports.cancelRequest = async (req, res, next) => {
       .status(500)
       .send({ errors: { msg: "Error while cancelling the request" } });
   }
+  let bookOwner = await User.findOne({ _id: book.ownerId });
+  console.log("owner", bookOwner.fullname)
 
   const mailToOwner = {
     from: process.env.SERVER_EMAIL,
     to: bookOwner.email,
-    subject: `Southampton Uni Book Exchange - Request For Book "${book.title}" Cancelled`,
-    text: `Hello, ${bookOwner.fullName}! \n\nThe request for your book has been cancelled. There, is no need to contant the user.\n\nMany thanks,\nBook Exchange Team`,
+    subject: `Southampton Uni Book Exchange - Request For Book "${book.title}" CANCELLED`,
+    text: `Hello, ${bookOwner.fullname}! \n\nThe request for your book has been cancelled. There, is no need to contact the user.\n\nMany thanks,\nBook Exchange Team`,
   };
 
   const mailToBuyer = {
     from: process.env.SERVER_EMAIL,
     to: user.email,
-    subject: `Southampton Uni Book Exchange - Request For Book "${book.title}" Cancelled`,
-    text: `Hello, ${user.fullName}! \nYour request for "${book.title}" has been cancelled.\n\nThank you very much.\n\nBest regards,\nBook Exchange Team`,
+    subject: `Southampton Uni Book Exchange - Request For Book "${book.title}" CANCELLED`,
+    text: `Hello, ${user.fullname}! \nYour request for "${book.title}" has been cancelled.\n\nThank you very much.\n\nBest regards,\nBook Exchange Team`,
   };
 
   sendMail(mailToOwner);

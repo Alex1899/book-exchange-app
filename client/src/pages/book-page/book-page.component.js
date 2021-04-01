@@ -36,7 +36,7 @@ const BookPage = ({ data }) => {
           userId: currentUser.userId,
         })
         .then((res) => {
-          console.log("requested", res.data.requested)
+          console.log("requested", res.data.requested);
           setRequested(res.data.requested);
         })
         .catch((e) => console.log(e));
@@ -54,14 +54,16 @@ const BookPage = ({ data }) => {
       .catch((e) => console.log(e));
   };
 
-  const handleCancelRequest = ()=> {
+  const handleCancelRequest = () => {
     setRequested(false);
-    axios.post("/books/cancel-request", {
-      bookId: id,
-      userId: currentUser.userId
-    }).then(res=>console.log(res.data))
-    .catch(e=>console.log(e))
-  }
+    axios
+      .post("/books/cancel-request", {
+        bookId: id,
+        userId: currentUser.userId,
+      })
+      .then((res) => console.log(res.data))
+      .catch((e) => console.log(e));
+  };
 
   return (
     <div className="d-flex mt-5 mb-3 justify-content-center">
@@ -139,23 +141,40 @@ const BookPage = ({ data }) => {
             )}
           </div>
 
+      
+          {/* if user logged in */}
           {currentUser ? (
+            // check if user is the seller of the book
+            currentUser.userId.toString() === book.ownerId.toString() ? (
+              <div className="d-flex justify-content-center mt-5">
+                <p className="font-weight-bold">
+                  You are selling this book
+                </p>
+              </div>
+            ) :
+            // if user is not the seller of the book, check if he requested this book
             !requested ? (
               <CustomButton type="submit" onClick={handleBookRequest}>
                 Request
               </CustomButton>
             ) : (
+              // if requested then allow cancelling
               <div>
                 <div className="d-flex justify-content-center align-items-center mb-4 mt-4">
                   <p className="mr-2 font-weight-bold">BOOK REQUESTED</p>
                   <CheckCircle />
                 </div>
-                <CustomButton width="100%" type="submit" onClick={handleCancelRequest}>
+                <CustomButton
+                  width="100%"
+                  type="submit"
+                  onClick={handleCancelRequest}
+                >
                   Cancel Request
                 </CustomButton>
               </div>
             )
           ) : (
+            // if user not logged in
             <div className="d-flex justify-content-center mt-5">
               <p className="font-weight-bold">
                 Please log in to request a book
