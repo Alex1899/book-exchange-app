@@ -30,12 +30,12 @@ const ProfilePage = () => {
         <Image
           className="profile-avatar"
           onClick={()=>setShow(true)}
-          src={currentUser.avatar}
+          src={currentUser ? currentUser.avatar : ""}
           style={{ width: 200 }}
           roundedCircle
         />
 
-        <div className="d-flex flex-column align-items-center">
+        <div className="d-flex flex-column align-items-center mt-3">
           <h3 className="username mb-3">{currentUser.username}</h3>
           {counts && (
             <div className="d-flex  justify-content-center mb-4">

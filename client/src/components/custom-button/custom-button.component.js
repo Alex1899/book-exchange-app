@@ -9,6 +9,7 @@ const CustomButton = ({
   ...otherProps
 }) => (
   <button
+    style={otherProps.width ? {width: otherProps.width} : null}
     className={`${inverted ? 'inverted' : ''} ${
       isGoogleSignIn ? 'google-sign-in' : ''
     } custom-button`}

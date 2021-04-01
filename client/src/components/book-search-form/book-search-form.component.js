@@ -30,7 +30,6 @@ const BookSearchForm = ({ setData }) => {
     axios
       .post("/books/search", form)
       .then((res) => {
-        console.log("Res", res.data);
         setShowSpinner(false);
         setData(res.data.books);
       })

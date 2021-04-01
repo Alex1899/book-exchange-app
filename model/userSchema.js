@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
 const bcrypt = require("bcrypt");
 const { isEmail } = require("validator");
 
@@ -29,36 +31,10 @@ const userSchema = mongoose.Schema(
       type: String,
     },
 
-    soldBooks: {
-      type: [
-        {
-          type: String,
-          unique: true,
-        },
-      ],
-      required: true,
-      sparse: true,
-    },
-    purchasedBooks: {
-      type: [
-        {
-          type: String,
-          unique: true,
-        },
-      ],
-      required: true,
-      sparse: true,
-    },
-    currentlySelling: {
-      type: [
-        {
-          type: String,
-          unique: true,
-        },
-      ],
-      required: true,
-      sparse: true,
-    },
+    soldBooks: [{ type: Schema.Types.ObjectId, ref: "Book" }],
+    requestedBooks: [{ type: Schema.Types.ObjectId, ref: "Book" }],
+    purchasedBooks: [{ type: Schema.Types.ObjectId, ref: "Book" }],
+    currentlySelling: [{ type: Schema.Types.ObjectId, ref: "Book" }],
   },
   { timestamps: { createdAt: "created_at" } }
 );

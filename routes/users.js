@@ -12,7 +12,7 @@ router.post("/avatar", userController.updateUserAvatar);
 
 router.get("/:id/books-count", userController.getBooksCount);
 
-router.get("/:id/books/:type", userController.getUserBooks)
+router.get("/:id/books", userController.getUserBooks)
 
 router.get("/:username", async function (req, res, next) {
   const { username } = req.params;

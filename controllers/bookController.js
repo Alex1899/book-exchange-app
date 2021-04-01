@@ -1,6 +1,7 @@
 const { cloudinary } = require("../utils/cloudinary");
 const Book = require("../model/bookSchema");
 const User = require("../model/userSchema");
+const { sendMail } = require("../emailer/emailer");
 
 module.exports.addBookToDB = async (req, res, next) => {
   let data = req.body;
@@ -13,8 +14,7 @@ module.exports.addBookToDB = async (req, res, next) => {
       folder: "book-exchange/user-books/" + data.ownerId + "/",
     });
     console.log("uploaded responce =>", uploadedResponse);
-    
-    console.log(date)
+
     const book = await Book.create({
       ...data,
       photoId: uploadedResponse.secure_url,
@@ -51,9 +51,113 @@ module.exports.searchBook = async (req, res, next) => {
       .status(404)
       .send({ errors: { msg: "Books not found with these details" } });
 
-  
-
   res.send({ books: books.reverse() });
+};
+
+module.exports.requestBook = async (req, res, next) => {
+  const { bookId, userId } = req.body;
+
+  const user = await User.findOne({ _id: userId });
+  if (!user) {
+    return res
+      .status(404)
+      .send({ errors: { msg: "User not found with this ID" } });
+  }
+
+  if (!user.requestedBooks.includes(bookId)) {
+    let requestedBooks = [...user.requestedBooks, bookId];
+
+    try {
+      await user.updateOne({ requestedBooks });
+    } catch (e) {
+      console.log(e);
+      res
+        .status(500)
+        .send({ errors: { msg: "Error while requesting a book" } });
+    }
+
+    const book = await Book.findOne({ _id: bookId });
+    await book.updateOne({ status: "sold" });
+
+    let bookOwner = await User.findOne({ _id: book.ownerId });
+
+    const mailToOwner = {
+      from: process.env.SERVER_EMAIL,
+      to: bookOwner.email,
+      subject: `Southampton Uni Book Exchange - Request For Book "${book.title}"`,
+      text: `Hello, ${bookOwner.fullName}! \n\nYour book "${book.title}" has been requested. Please, contact ${bookOwner.fullname} at ${user.email} to arrange for exchange. \n\nMany thanks,\nBook Exchange Team`,
+    };
+
+    const mailToBuyer = {
+      from: process.env.SERVER_EMAIL,
+      to: user.email,
+      subject: `Southampton Uni Book Exchange - Request For Book "${book.title}"`,
+      text: `Hello, ${user.fullName}! \n\nYour request for the "${book.title}" book has been noted. You will be contacted by the seller within 48 hours to arrange for the exchange.\n\nThank you very much.\n\nBest regards,\nBook Exchange Team`,
+    };
+
+    sendMail(mailToOwner);
+    sendMail(mailToBuyer);
+
+    res.send({ status: "Book request successfull" });
+  } else {
+    res.send({ status: "Book already requested" });
+  }
+};
+
+module.exports.cancelRequest = async (req, res, next) => {
+  const { bookId, userId } = req.body;
+
+  const user = await User.findOne({ _id: userId });
+  console.log("book requested =", user.requestedBooks.includes(bookId));
+  console.log("before", user.requestedBooks);
+  let requestedBooks = user.requestedBooks;
+
+  let filteredArr = requestedBooks.filter((id) => id.toString() !== bookId);
+  const book = await Book.findOne({ _id: bookId });
+  await book.updateOne({ status: "selling" });
+
+  try {
+    await user.updateOne({ requestedBooks: filteredArr });
+  } catch (e) {
+    console.log(e);
+    res
+      .status(500)
+      .send({ errors: { msg: "Error while cancelling the request" } });
+  }
+
+  const mailToOwner = {
+    from: process.env.SERVER_EMAIL,
+    to: bookOwner.email,
+    subject: `Southampton Uni Book Exchange - Request For Book "${book.title}" Cancelled`,
+    text: `Hello, ${bookOwner.fullName}! \n\nThe request for your book has been cancelled. There, is no need to contant the user.\n\nMany thanks,\nBook Exchange Team`,
+  };
+
+  const mailToBuyer = {
+    from: process.env.SERVER_EMAIL,
+    to: user.email,
+    subject: `Southampton Uni Book Exchange - Request For Book "${book.title}" Cancelled`,
+    text: `Hello, ${user.fullName}! \nYour request for "${book.title}" has been cancelled.\n\nThank you very much.\n\nBest regards,\nBook Exchange Team`,
+  };
+
+  sendMail(mailToOwner);
+  sendMail(mailToBuyer);
+
+  res.send({ status: "Book request cancelled" });
+};
+
+module.exports.checkIfBookRequested = async (req, res, next) => {
+  const { id } = req.params;
+  const { userId } = req.body;
+
+  const user = await User.findOne({ _id: userId });
+  if (!user) {
+    return res
+      .status(404)
+      .send({ errors: { msg: "User not found with this ID" } });
+  }
+  let requested = user.requestedBooks.includes(id);
+
+  res.send({ requested });
 };
 
 module.exports.getBookById = async (req, res, next) => {

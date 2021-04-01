@@ -9,7 +9,7 @@ const ChangeAvatar = ({ show, handleClose }) => (
     </Modal.Header>
     <Modal.Body className="text-center">
       <div className="modal-p">
-        <p style={{ color: "darkblue" }} onClick>Upload new profile photo</p>
+        <p style={{ color: "darkblue" }} >Upload new profile photo</p>
         <p style={{ color: "red" }}>Remove profile photo</p>
       </div>
     </Modal.Body>

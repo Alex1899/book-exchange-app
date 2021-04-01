@@ -1,5 +1,5 @@
 const User = require("../model/userSchema");
-const Book = require("../model/bookSchema")
+const Book = require("../model/bookSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const path = require("path");
@@ -57,6 +57,21 @@ module.exports.registerUser = async function (req, res, next) {
     //   return res.status(400).send({ msg: "Passwords do not match." });
     let default_avatar =
       "https://res.cloudinary.com/alekoscloud/image/upload/v1616778147/book-exchange/user-avatars/default/user_wf8ww4.jpg";
+
+    const checkUserEmail = await User.findOne({ email });
+    if (checkUserEmail) {
+      return res
+        .status(400)
+        .send({ errors: { msg: "User with this email already exists" } });
+    }
+
+    const checkUserUsername = await User.findOne({ username });
+    if (checkUserUsername) {
+      return res
+        .status(400)
+        .send({ errors: { msg: "User with this username already exists" } });
+    }
+
     const user = await User.create({
       fullname,
       username,
@@ -64,6 +79,7 @@ module.exports.registerUser = async function (req, res, next) {
       password,
       avatar: default_avatar,
       soldBooks: [],
+      requestedBooks: [],
       currentlySelling: [],
       purchasedBooks: [],
     });
@@ -73,6 +89,10 @@ module.exports.registerUser = async function (req, res, next) {
       username: user.username,
       userId: user._id,
       avatar: user.avatar,
+      soldBooks: user.soldBooks,
+      requestedBooks: user.requestedBooks,
+      currentlySelling: user.currentlySelling,
+      purchasedBooks: user.purchasedBooks,
     });
   } catch (err) {
     const errors = handleErrors(err);
@@ -100,7 +120,22 @@ module.exports.loginUser = async function (req, res, next) {
       .send({ errors: { msg: "Incorrect password for this user" } });
   }
 
-  res.send({ username: user.username, userId: user._id, avatar: user.avatar });
+  await user
+    .populate("currentlySelling")
+    .populate("soldBooks")
+    .populate("purchasedBooks")
+    .populate("requestedBooks")
+    .execPopulate();
+
+  res.send({
+    username: user.username,
+    userId: user._id,
+    avatar: user.avatar,
+    requestedBooks: user.requestedBooks,
+    soldBooks: user.soldBooks,
+    currentlySelling: user.currentlySelling,
+    purchasedBooks: user.purchasedBooks,
+  });
 };
 
 module.exports.updateUserAvatar = async function (req, res, next) {
@@ -116,7 +151,9 @@ module.exports.updateUserAvatar = async function (req, res, next) {
     { avatar: uploadedResponse.secure_url }
   );
   if (!user) {
-    return res.status(500).send({ errors: {msg: "Error when updating user avatar" }});
+    return res
+      .status(500)
+      .send({ errors: { msg: "Error when updating user avatar" } });
   }
   res.send({ avatar: user.avatar });
   console.log("Updated user avatar in database...");
@@ -135,31 +172,24 @@ module.exports.getBooksCount = async function (req, res, next) {
 };
 
 module.exports.getUserBooks = async function (req, res, nex) {
-  const { id, type } = req.params;
+  const { id } = req.params;
 
   const user = await User.findOne({ _id: id });
-
-  let books = [];
-  switch (type) {
-    case "purchased":
-      books = user.purchasedBooks;
-      break;
-
-    case "sold":
-      books = user.soldBooks;
-      break;
-
-    case "selling":
-      books = user.currentlySelling;
-      break;
-
-    default:
-      res.status(400).send({ errors: {msg: "Unexpected books type requrested" }});
-      break;
+  try {
+    await user
+      .populate("currentlySelling")
+      .populate("soldBooks")
+      .populate("purchasedBooks")
+      .populate("requestedBooks")
+      .execPopulate();
+  } catch (e) {
+    res.status(500).send({ errors: { msg: "Error while getting user books" } });
   }
 
-
-  let data =  await Book.find({ _id: { $in: books}})
-
-  res.send({ data });
+  res.send({
+    currentlySelling: user.currentlySelling,
+    soldBooks: user.soldBooks,
+    purchasedBooks: user.purchasedBooks,
+    requestedBooks: user.requestedBooks,
+  });
 };

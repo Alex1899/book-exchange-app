@@ -21,11 +21,11 @@ const App = () => {
 
       <Switch>
         <Route exact path="/" component={HomePage} />
-        <Route path="/profile" component={ProfilePage} />
+        <Route path="/profile" render={()=> currentUser ? <ProfilePage /> : <SignInAndSignUpPage />} />
         <Route path="/search" component={SearchBook} />
         <Route
           path="/book/:id"
-          render={({ match: { params } }) => <BookPage bookId={params.id} />}
+          render={({location: {state}, match: {params}}) => <BookPage data={{state, id: params.id }}/>}
         />
         <Route
           path="/list-book"

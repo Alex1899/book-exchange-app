@@ -12,19 +12,56 @@ import CustomButton from "../../components/custom-button/custom-button.component
 import HorizontalLine from "../../components/horizontal-line/horizontal-line.component";
 import { useStateValue } from "../../contexts/state.provider";
 import "./book-page.styles.scss";
-const BookPage = ({ bookId }) => {
-  const [book, setBook] = useState(null);
-  const [requested, setRequested] = useState(false);
+
+const BookPage = ({ data }) => {
+  const [book, setBook] = useState(data.state ? data.state.book : null);
+  const id = data.id;
+
+  const [requested, setRequested] = useState(null);
   const {
     state: { currentUser },
   } = useStateValue();
 
   useEffect(() => {
+    if (!book) {
+      console.log("fetching book form book page...");
+      axios
+        .get(`/books/${id}`)
+        .then((res) => setBook(res.data.book))
+        .catch((e) => console.log(e));
+    }
+    if (currentUser) {
+      axios
+        .post(`/books/${id}`, {
+          userId: currentUser.userId,
+        })
+        .then((res) => {
+          console.log("requested", res.data.requested)
+          setRequested(res.data.requested);
+        })
+        .catch((e) => console.log(e));
+    }
+  }, [book, id, currentUser]);
+
+  const handleBookRequest = () => {
+    setRequested(true);
     axios
-      .get(`/books/${bookId}`)
-      .then((res) => setBook(res.data.book))
+      .post("/books/request", {
+        bookId: id,
+        userId: currentUser.userId,
+      })
+      .then((res) => console.log(res.data))
       .catch((e) => console.log(e));
-  }, [bookId]);
+  };
+
+  const handleCancelRequest = ()=> {
+    setRequested(false);
+    axios.post("/books/cancel-request", {
+      bookId: id,
+      userId: currentUser.userId
+    }).then(res=>console.log(res.data))
+    .catch(e=>console.log(e))
+  }
 
   return (
     <div className="d-flex mt-5 mb-3 justify-content-center">
@@ -104,10 +141,18 @@ const BookPage = ({ bookId }) => {
 
           {currentUser ? (
             !requested ? (
-              <CustomButton type="submit" onClick={()=> setRequested(true)}>Request</CustomButton>
+              <CustomButton type="submit" onClick={handleBookRequest}>
+                Request
+              </CustomButton>
             ) : (
-              <div className="requested-div d-flex justify-content-center align-items-center">
-                <p className="mr-2 font-weight-bold">BOOK REQUESTED</p> <CheckCircle />
+              <div>
+                <div className="d-flex justify-content-center align-items-center mb-4 mt-4">
+                  <p className="mr-2 font-weight-bold">BOOK REQUESTED</p>
+                  <CheckCircle />
+                </div>
+                <CustomButton width="100%" type="submit" onClick={handleCancelRequest}>
+                  Cancel Request
+                </CustomButton>
               </div>
             )
           ) : (
