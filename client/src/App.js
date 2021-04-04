@@ -25,7 +25,7 @@ const App = () => {
         <Route path="/search" component={SearchBook} />
         <Route
           path="/book/:id"
-          render={({location: {state}, match: {params}}) => <BookPage data={{state, id: params.id }}/>}
+          render={({match: {params}}) => <BookPage id={params.id}/>}
         />
         <Route
           path="/list-book"

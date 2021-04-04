@@ -9,6 +9,7 @@ router.post("/register", userController.registerUser);
 router.post("/login", userController.loginUser);
 
 router.post("/avatar", userController.updateUserAvatar);
+router.post("/change/avatar", userController.updateUserAvatar)
 
 router.get("/:id/books-count", userController.getBooksCount);
 

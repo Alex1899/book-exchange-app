@@ -34,6 +34,14 @@ export function reducer(state = initialState, action) {
         },
       };
 
+    case ACTION.UPDATE_CURRENTLY_SELLING:
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          currentlySelling: action.payload.currentlySelling,
+        },
+      };
     case ACTION.UPDATE_USER_BOOKS:
       return {
         ...state,

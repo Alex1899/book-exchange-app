@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { ACTION } from "../../reducer/action-types/action-types";
 import { Image } from "react-bootstrap";
 import {
   FileEarmarkBreak,
@@ -13,24 +14,30 @@ import HorizontalLine from "../../components/horizontal-line/horizontal-line.com
 import { useStateValue } from "../../contexts/state.provider";
 import "./book-page.styles.scss";
 
-const BookPage = ({ data }) => {
-  const [book, setBook] = useState(data.state ? data.state.book : null);
-  const id = data.id;
-
+const BookPage = ({ id }) => {
+  const [book, setBook] = useState(null);
+  const [requestedUser, setRequestedUser] = useState(null);
   const [requested, setRequested] = useState(null);
   const {
     state: { currentUser },
+    dispatch,
   } = useStateValue();
 
   useEffect(() => {
     if (!book) {
-      console.log("fetching book form book page...");
+      console.log("fetching book from book page...");
       axios
         .get(`/books/${id}`)
         .then((res) => setBook(res.data.book))
         .catch((e) => console.log(e));
     }
-    if (currentUser) {
+    console.log("useeffect book=>", book);
+    if (
+      currentUser &&
+      book &&
+      book.ownerId.toString() !== currentUser.userId.toString()
+    ) {
+      console.log("fetching book request status...");
       axios
         .post(`/books/${id}`, {
           userId: currentUser.userId,
@@ -41,7 +48,20 @@ const BookPage = ({ data }) => {
         })
         .catch((e) => console.log(e));
     }
-  }, [book, id, currentUser]);
+
+    if (
+      !requestedUser &&
+      currentUser &&
+      book &&
+      book.ownerId.toString() === currentUser.userId.toString()
+    ) {
+      console.log("fetching requestedUser...");
+      axios
+        .get(`/books/${id}/requested-user`)
+        .then((res) => setRequestedUser(res.data.user))
+        .catch((e) => console.log(e));
+    }
+  }, [book, id, currentUser, requestedUser]);
 
   const handleBookRequest = () => {
     setRequested(true);
@@ -62,6 +82,40 @@ const BookPage = ({ data }) => {
         userId: currentUser.userId,
       })
       .then((res) => console.log(res.data))
+      .catch((e) => console.log(e));
+  };
+
+  const markBookAsSold = () => {
+    axios
+      .post(`/books/${book._id}/sold`, {
+        sellerId: currentUser.userId,
+        buyerId: requestedUser.id,
+      })
+      .then((res) => {
+        // go over book status updates...
+        console.log(res.data);
+        setBook({
+          ...book,
+          status: res.data.bookStatus,
+          ownerId: requestedUser.id,
+        });
+        dispatch({
+          type: ACTION.UPDATE_CURRENTLY_SELLING,
+          payload: { currentlySelling: res.data.currentlySelling },
+        });
+      })
+      .catch((e) => console.log(e));
+  };
+
+  const sellBook = () => {
+    axios
+      .post(`/books/${id}/selling`, {
+        userId: currentUser.userId,
+      })
+      .then((res) => {
+        setRequestedUser(null);
+        setBook({ ...book, status: res.data.status });
+      })
       .catch((e) => console.log(e));
   };
 
@@ -141,46 +195,135 @@ const BookPage = ({ data }) => {
             )}
           </div>
 
-      
-          {/* if user logged in */}
-          {currentUser ? (
-            // check if user is the seller of the book
-            currentUser.userId.toString() === book.ownerId.toString() ? (
-              <div className="d-flex justify-content-center mt-5">
-                <p className="font-weight-bold">
-                  You are selling this book
-                </p>
-              </div>
-            ) :
-            // if user is not the seller of the book, check if he requested this book
-            !requested ? (
-              <CustomButton type="submit" onClick={handleBookRequest}>
-                Request
-              </CustomButton>
-            ) : (
-              // if requested then allow cancelling
-              <div>
-                <div className="d-flex justify-content-center align-items-center mb-4 mt-4">
-                  <p className="mr-2 font-weight-bold">BOOK REQUESTED</p>
-                  <CheckCircle />
-                </div>
-                <CustomButton
-                  width="100%"
-                  type="submit"
-                  onClick={handleCancelRequest}
-                >
-                  Cancel Request
-                </CustomButton>
-              </div>
-            )
-          ) : (
-            // if user not logged in
-            <div className="d-flex justify-content-center mt-5">
-              <p className="font-weight-bold">
-                Please log in to request a book
-              </p>
-            </div>
-          )}
+          {(() => {
+            switch (true) {
+              case book.status === "sold":
+                return (
+                  <div className="d-flex flex-column align-items-center justify-content-center mt-5">
+                    {currentUser &&
+                    currentUser.userId.toString() ===
+                      book.ownerId.toString() ? (
+                      <>
+                        <p className="font-weight-bold mb-4">
+                          You own this book
+                        </p>
+                        <CustomButton
+                          width="100%"
+                          type="submit"
+                          onClick={sellBook}
+                        >
+                          Sell This Book
+                        </CustomButton>
+                      </>
+                    ) : (
+                      <p className="font-weight-bold">
+                        This book has been sold
+                      </p>
+                    )}
+                  </div>
+                );
+              case book.status === "requested" && !currentUser:
+                return (
+                  <div className="d-flex flex-column align-items-center justify-content-center mt-2">
+                    <p className="font-weight-bold">This book has been sold</p>
+                  </div>
+                );
+              case book.status === "requested" &&
+                currentUser &&
+                currentUser.userId.toString() === book.ownerId.toString():
+                return (
+                  <div className="d-flex flex-column align-items-center justify-content-center mt-2">
+                    <p className="font-weight-bold mb-4">
+                      You are selling this book
+                    </p>
+                    {requestedUser && (
+                      <div className="d-flex flex-column">
+                        <div className="d-flex flex-column justify-content-center mb-4">
+                          <p>
+                            The book has been requested by{" "}
+                            <span className="font-weight-bold">
+                              {requestedUser.username}
+                            </span>
+                            . Please contact{" "}
+                            <span className="font-weight-bold">
+                              {requestedUser.username}
+                            </span>{" "}
+                            at{" "}
+                            <span className="font-weight-bold">
+                              {requestedUser.email}
+                            </span>{" "}
+                            to arrange for exchange. Once the exchange is over,
+                            you can mark the book as sold.
+                          </p>
+                        </div>
+                        <CustomButton
+                          width="100%"
+                          type="submit"
+                          onClick={markBookAsSold}
+                        >
+                          Mark as Sold
+                        </CustomButton>
+                      </div>
+                    )}
+                  </div>
+                );
+
+              // case book.status === "requested" &&
+              //   currentUser &&
+              //   requestedUser &&
+              //   currentUser.userId.toString() === requestedUser.id.toString():
+              //   return (
+              //     <div className="d-flex flex-column align-items-center justify-content-center mt-2">
+              //       <p className="font-weight-bold">This book has been sold</p>
+              //     </div>
+              //   );
+
+              // if reached here, means book is currently selling
+              case !currentUser:
+                return (
+                  <div className="d-flex justify-content-center mt-5">
+                    <p className="font-weight-bold">
+                      Please log in to request a book
+                    </p>
+                  </div>
+                );
+              // book is selling and user is the owner
+              case currentUser.userId.toString() === book.ownerId.toString():
+                return (
+                  <div className="d-flex flex-column align-items-center justify-content-center mt-2">
+                    <p className="font-weight-bold mb-4">
+                      You are selling this book
+                    </p>
+                  </div>
+                );
+              // book is selling and user is not the owner
+              case !requested:
+                return (
+                  <CustomButton type="submit" onClick={handleBookRequest}>
+                    Request
+                  </CustomButton>
+                );
+              // user requested the book
+              case requested:
+                return (
+                  <div>
+                    <div className="d-flex justify-content-center align-items-center mb-4 mt-4">
+                      <p className="mr-2 font-weight-bold">BOOK REQUESTED</p>
+                      <CheckCircle />
+                    </div>
+                    <CustomButton
+                      width="100%"
+                      type="submit"
+                      onClick={handleCancelRequest}
+                    >
+                      Cancel Request
+                    </CustomButton>
+                  </div>
+                );
+              default:
+                return null;
+            }
+          })()}
         </div>
       )}
     </div>

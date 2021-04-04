@@ -181,6 +181,7 @@ const BookSubmitForm = () => {
                 value={language}
                 onChange={onChange}
                 label="Language"
+                required
               ></FormInput>
               <FormInput
                 type="text"

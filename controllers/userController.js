@@ -139,16 +139,17 @@ module.exports.loginUser = async function (req, res, next) {
 };
 
 module.exports.updateUserAvatar = async function (req, res, next) {
-  const { userId, imageData } = req.body;
+  const { userId, avatar } = req.body;
 
-  const uploadedResponse = await cloudinary.uploader.upload(imageData, {
+  const uploadedResponse = await cloudinary.uploader.upload(avatar, {
     folder: "book-exchange/user-avatars/" + userId + "/",
   });
   console.log("uploaded responce =>", uploadedResponse);
 
-  const user = await User.findByIdAndUpdate(
+  const user = await User.findOneAndUpdate(
     { _id: userId },
-    { avatar: uploadedResponse.secure_url }
+    { avatar: uploadedResponse.secure_url },
+    {new: true}
   );
   if (!user) {
     return res
@@ -187,9 +188,9 @@ module.exports.getUserBooks = async function (req, res, nex) {
   }
 
   res.send({
-    currentlySelling: user.currentlySelling,
-    soldBooks: user.soldBooks,
-    purchasedBooks: user.purchasedBooks,
-    requestedBooks: user.requestedBooks,
+    currentlySelling: user.currentlySelling.reverse(),
+    soldBooks: user.soldBooks.reverse(),
+    purchasedBooks: user.purchasedBooks.reverse(),
+    requestedBooks: user.requestedBooks.reverse(),
   });
 };

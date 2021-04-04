@@ -15,6 +15,10 @@ const getBase64 = (file) => {
 const UploadedPic = ({ photo, onChange }) => {
   const onDrop = async (pic) => {
     console.log({ pic });
+    if(pic.length < 1){
+      console.log("Error uploading pic")
+      return 
+    }
     const imgData = await getBase64(pic[0]);
     console.log({ imgData });
     onChange(imgData);

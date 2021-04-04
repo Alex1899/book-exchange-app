@@ -6,7 +6,7 @@ import "./profile-book.styles.scss";
 const ProfileBook = ({ book }) => {
   const history = useHistory();
 
-  const onClick = ()=> history.push({pathname: `/book/${book._id}`, state: {book}});
+  const onClick = ()=> history.push({pathname: `/book/${book._id}`});
   return (
     <div className="d-flex book-div">
       <div className="book-image" style={{ width: 250, height: 200, marginRight: 20, backgroundSize: "cover" ,backgroundImage: `url(${book.photoId})`}} onClick={onClick}>
