@@ -260,9 +260,9 @@ const BooksDisplay = () => {
       <div className="d-flex flex-column align-center mt-4">
         {books.data &&
           (books.data.length > 0 ? (
-            books.data.map(({ book }, i) => (
+            books.data.map(({ book, date }, i) => (
               <div key={i}>
-                <ProfileBook book={book} />
+                <ProfileBook data={{book, date, type: books.type}}/>
                 <HorizontalLine color="lightgrey" />
               </div>
             ))

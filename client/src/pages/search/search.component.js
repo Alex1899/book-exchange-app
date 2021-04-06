@@ -35,7 +35,7 @@ const SearchBook = () => {
           ) : data.length > 0 ? (
             data.map((book, i) => (
               <div className="d-flex flex-column" key={i}>
-                <ProfileBook  book={book} />
+                <ProfileBook  data={{book}} />
                 <HorizontalLine color="lightgrey" />
               </div>
             ))
