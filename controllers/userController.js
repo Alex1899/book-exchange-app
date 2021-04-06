@@ -120,12 +120,12 @@ module.exports.loginUser = async function (req, res, next) {
       .send({ errors: { msg: "Incorrect password for this user" } });
   }
 
-  await user
-    .populate("currentlySelling")
-    .populate("soldBooks")
-    .populate("purchasedBooks")
-    .populate("requestedBooks")
-    .execPopulate();
+  // await user
+  //   .populate("currentlySelling")
+  //   .populate("soldBooks")
+  //   .populate("purchasedBooks")
+  //   .populate("requestedBooks")
+  //   .execPopulate();
 
   res.send({
     username: user.username,
@@ -149,7 +149,7 @@ module.exports.updateUserAvatar = async function (req, res, next) {
   const user = await User.findOneAndUpdate(
     { _id: userId },
     { avatar: uploadedResponse.secure_url },
-    {new: true}
+    { new: true }
   );
   if (!user) {
     return res
@@ -178,10 +178,15 @@ module.exports.getUserBooks = async function (req, res, nex) {
   const user = await User.findOne({ _id: id });
   try {
     await user
-      .populate("currentlySelling")
-      .populate("soldBooks")
-      .populate("purchasedBooks")
-      .populate("requestedBooks")
+      .populate({
+        path: "currentlySelling",
+        populate: {
+          path: "book",
+        },
+      })
+      .populate({ path: "soldBooks", populate: { path: "book" } })
+      .populate({ path: "purchasedBooks", populate: { path: "book" } })
+      .populate({ path: "requestedBooks", populate: { path: "book" } })
       .execPopulate();
   } catch (e) {
     res.status(500).send({ errors: { msg: "Error while getting user books" } });
@@ -193,4 +198,19 @@ module.exports.getUserBooks = async function (req, res, nex) {
     purchasedBooks: user.purchasedBooks.reverse(),
     requestedBooks: user.requestedBooks.reverse(),
   });
+};
+
+module.exports.getUserAvatar = async (req, res, next) => {
+  const { id } = req.params;
+
+  const user = await User.findOne({ _id: id });
+
+  res.send({ avatar: user.avatar });
+};
+
+module.exports.getUserById = async (req, res, next) => {
+  const { id } = req.params;
+  const user = await User.findOne({ _id: id });
+
+  res.send({ user: { username: user.username, avatar: user.avatar } });
 };

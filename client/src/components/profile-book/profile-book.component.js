@@ -4,6 +4,7 @@ import {useHistory} from "react-router-dom"
 import "./profile-book.styles.scss";
 
 const ProfileBook = ({ book }) => {
+  console.log("book", book)
   const history = useHistory();
 
   const onClick = ()=> history.push({pathname: `/book/${book._id}`});
@@ -18,7 +19,7 @@ const ProfileBook = ({ book }) => {
         {/* <p>Subject: {book.subject}</p> */}
         <p>Category: {book.category}</p>
         <p>Condition: {book.condition}</p>
-        <p>Price: {book.price} &#163;</p>
+        <p>Price: &#163; {book.price}</p>
       </div>
     </div>
   );

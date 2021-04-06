@@ -21,7 +21,7 @@ const SignIn = () => {
     axios
       .post("/users/login", form)
       .then((res) => {
-        console.log({ res });
+        console.log("log in",{ res });
         dispatch({ type: ACTION.LOGIN_USER, payload: res.data });
       })
       .catch((e) => {

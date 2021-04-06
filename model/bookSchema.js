@@ -67,6 +67,8 @@ const bookSchema = mongoose.Schema(
           userId: String,
           rating: Number,
           comment: String,
+          headline: String,
+          date: Date
         },
       ],
     },

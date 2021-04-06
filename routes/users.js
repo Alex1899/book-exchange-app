@@ -9,11 +9,16 @@ router.post("/register", userController.registerUser);
 router.post("/login", userController.loginUser);
 
 router.post("/avatar", userController.updateUserAvatar);
-router.post("/change/avatar", userController.updateUserAvatar)
+
+router.post("/change/avatar", userController.updateUserAvatar);
+
+router.get("/:id", userController.getUserById);
+
+router.get("/:id/avatar", userController.getUserAvatar);
 
 router.get("/:id/books-count", userController.getBooksCount);
 
-router.get("/:id/books", userController.getUserBooks)
+router.get("/:id/books", userController.getUserBooks);
 
 router.get("/:username", async function (req, res, next) {
   const { username } = req.params;

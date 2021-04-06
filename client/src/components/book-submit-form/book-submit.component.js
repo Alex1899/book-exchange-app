@@ -124,7 +124,7 @@ const BookSubmitForm = () => {
             photo={form.photo}
             onChange={(pic) => setForm({ ...form, photo: pic })}
           />
-          <div className="d-flex flex-column">
+          <div className="d-flex flex-column ml-3">
             <span>Enter details of the book below</span>
             <Form className="list-form" onSubmit={handleSubmit}>
               <FormInput

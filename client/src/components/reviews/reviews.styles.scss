@@ -1,0 +1,15 @@
+
+.add-review-div {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid lightgray;
+    box-shadow: 0 0 3px 1px #888;
+    margin-top: 15px;
+
+    &:hover{
+        opacity: 0.8;
+        cursor: pointer;
+    }
+}

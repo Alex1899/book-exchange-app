@@ -9,11 +9,14 @@ router.post("/search", bookController.searchBook);
 
 router.post("/request", bookController.requestBook);
 
+router.post("/add-review", bookController.addReview)
+
 router.post("/cancel-request", bookController.cancelRequest);
 
 router.post("/:id", bookController.checkIfBookRequested);
 
 router.post("/:id/sold", bookController.markBookSold)
+
 
 router.post("/:id/selling", bookController.sellBook)
 

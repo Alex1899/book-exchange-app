@@ -23,15 +23,16 @@ module.exports.addBookToDB = async (req, res, next) => {
 
     const savedBook = await book.save();
 
-    const user = await User.findOneAndUpdate(
+    await User.findOneAndUpdate(
       { _id: data.ownerId },
-      { $addToSet: { currentlySelling: savedBook._id } },
+      {
+        $addToSet: {
+          currentlySelling: { book: savedBook._id, date: new Date() },
+        },
+      },
       { new: true }
     );
-    console.log(
-      "book added to user's selling list ",
-      user.currentlySelling.includes(savedBook._id)
-    );
+    console.log("book added to user's selling list ");
 
     res.send({ bookId: savedBook._id });
   } catch (e) {
@@ -64,13 +65,10 @@ module.exports.requestBook = async (req, res, next) => {
   try {
     const user = await User.findOneAndUpdate(
       { _id: userId },
-      { $addToSet: { requestedBooks: bookId } },
+      { $addToSet: { requestedBooks: { book: bookId, date: new Date() } } },
       { new: true }
     );
-    console.log(
-      "book added to user's requested list ",
-      user.requestedBooks.includes(bookId)
-    );
+    console.log("book added to user's requested list ");
 
     const book = await Book.findOneAndUpdate(
       { _id: bookId },
@@ -113,13 +111,10 @@ module.exports.cancelRequest = async (req, res, next) => {
   try {
     const user = await User.findOneAndUpdate(
       { _id: userId },
-      { $pull: { requestedBooks: bookId } },
+      { $pull: { requestedBooks: { book: bookId } } },
       { new: true }
     );
-    console.log(
-      "book request cancelled ",
-      user.requestedBooks.includes(bookId)
-    );
+    console.log("book request cancelled ");
 
     const book = await Book.findOneAndUpdate(
       { _id: bookId },
@@ -127,16 +122,16 @@ module.exports.cancelRequest = async (req, res, next) => {
       { new: true }
     );
     console.log("book status updated to selling ", book.status === "selling");
-
-    const bookOwner = await User.findOneAndUpdate(
-      { _id: book.ownerId },
-      { $addToSet: { currentlySelling: bookId } },
-      { new: true }
-    );
-    console.log(
-      "book returned to owner's selling list ",
-      bookOwner.currentlySelling.includes(bookId)
-    );
+    const bookOwner = await User.findOne({ _id: book.ownerId });
+    // const bookOwner = await User.findOneAndUpdate(
+    //   { _id: book.ownerId },
+    //   { $addToSet: { currentlySelling: bookId } },
+    //   { new: true }
+    // );
+    // console.log(
+    //   "book returned to owner's selling list ",
+    //   bookOwner.currentlySelling.includes(bookId)
+    // );
 
     const mailToOwner = {
       from: process.env.SERVER_EMAIL,
@@ -174,8 +169,11 @@ module.exports.checkIfBookRequested = async (req, res, next) => {
       .status(404)
       .send({ errors: { msg: "User not found with this ID" } });
   }
-  let requested = user.requestedBooks.includes(id);
 
+  let obj = user.requestedBooks.find(
+    (obj) => obj.book.toString() === id.toString()
+  );
+  let requested = obj ? true : false;
   res.send({ requested });
 };
 
@@ -196,7 +194,8 @@ module.exports.getBookById = async (req, res, next) => {
 module.exports.getBookRequester = async (req, res, next) => {
   const { id } = req.params;
 
-  const user = await User.findOne({ requestedBooks: id });
+  const user = await User.findOne({ "requestedBooks.book": id });
+
   if (!user) {
     console.log(`Book ${id} has not been requested by any user`);
     return res.send({ user: null });
@@ -221,30 +220,69 @@ module.exports.markBookSold = async (req, res, next) => {
 
     const seller = await User.findOneAndUpdate(
       { _id: sellerId },
-      { $pull: { currentlySelling: id } },
+      { $pull: { currentlySelling: { book: id } } },
       { new: true }
     );
     console.log("seller =>", seller.username);
-    console.log(
-      "book removed from seller's list ",
-      seller.currentlySelling.includes(id)
-    );
+    console.log("book removed from seller's list ");
 
-    await seller.updateOne({$addToSet: {soldBooks: id}})
-    console.log("book added to seller's sold books list ")
-
-    const buyer = await User.findOneAndUpdate(
-      { _id: buyerId },
-      { $addToSet: { purchasedBooks: id } },
-      { new: true }
+    // check if seller has already sold this book before
+    let soldBefore = seller.soldBooks.find(
+      ({ book }) => book._id.toString() === id.toString()
     );
-    console.log(
-      "book added to buyer's list ",
-      buyer.purchasedBooks.includes(id)
-    );
+    if (soldBefore) {
+      console.log(
+        "this book has been sold before by the seller, so only the date will be updated"
+      );
+      await seller.updateOne(
+        { $set: { "soldBooks.$[el].date": new Date() } },
+        { arrayFilters: [{ "el.book": id }] }
+      );
+    } else {
+      await seller.updateOne({
+        $addToSet: { soldBooks: { book: id, date: new Date() } },
+      });
+      console.log("book added to seller's sold books list ");
+    }
 
-    await buyer.updateOne({ $pull: { requestedBooks: id } });
+    // check if buyer had already bought this book before
+    const buyer = await User.findOne({ _id: buyerId });
+    let bookAlreadyExists = buyer.purchasedBooks.find(
+      (item) => item.book._id.toString() === id.toString()
+    );
+    if (bookAlreadyExists) {
+      console.log("book already exists in buyers purchased book");
+      await buyer.updateOne(
+        { $set: { "purchasedBooks.$[el].date": new Date() } },
+        { arrayFilters: [{ "el.book": id }] }
+      );
+    } else {
+      await buyer.updateOne({
+        $addToSet: { purchasedBooks: { book: id, date: new Date() } },
+      });
+    }
+
+    console.log("book added to buyer's list ");
+
+    await buyer.updateOne({ $pull: { requestedBooks: { book: id } } });
     console.log("book removed from buyers requested list");
+
+    const mailToBuyer = {
+      from: process.env.SERVER_EMAIL,
+      to: buyer.email,
+      subject: `Southampton Uni Book Exchange - Book "${book.title}" Purchased Successfully`,
+      text: `Hello, ${buyer.fullname}! \nYou have purchased the book "${book.title}" successfully.\n\nYou can add the review of the book on the book page if you wish.\n\nThank you very much.\n\nBest regards,\nBook Exchange Team`,
+    };
+
+    const mailToSeller = {
+      from: process.env.SERVER_EMAIL,
+      to: seller.email,
+      subject: `Southampton Uni Book Exchange - Book "${book.title}" Sold Successfully`,
+      text: `Hello, ${seller.fullname}! \nYou have sold the book "${book.title}" successfully.\n\nThank you very much.\n\nBest regards,\nBook Exchange Team`,
+    };
+
+    // sendMail(mailToBuyer);
+    // sendMail(mailToSeller);
 
     res.send({
       bookStatus: book.status,
@@ -262,13 +300,10 @@ module.exports.sellBook = async (req, res, next) => {
   try {
     const user = await User.findOneAndUpdate(
       { _id: userId },
-      { $addToSet: { currentlySelling: id } },
+      { $addToSet: { currentlySelling: { book: id, date: new Date() } } },
       { new: true }
     );
-    console.log(
-      "book added to user's selling list ",
-      user.currentlySelling.includes(id)
-    );
+    console.log("book added to user's selling list ");
 
     const book = await Book.findOneAndUpdate(
       { _id: id },
@@ -283,5 +318,33 @@ module.exports.sellBook = async (req, res, next) => {
     res
       .status(500)
       .send({ errors: { msg: "Error when listing a book for sale" } });
+  }
+};
+
+module.exports.addReview = async (req, res, next) => {
+  const { bookId, userId, review } = req.body;
+  console.log(req.body);
+  try {
+    const book = await Book.findOneAndUpdate(
+      { _id: bookId },
+      {
+        $push: {
+          reviews: {
+            userId,
+            rating: review.rating,
+            comment: review.comment,
+            headline: review.headline,
+            date: new Date(),
+          },
+        },
+      },
+      { new: true }
+    );
+
+    console.log("review added to the books review list");
+    res.send({ reviews: book.reviews });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ errors: { msg: "Error while adding the review" } });
   }
 };

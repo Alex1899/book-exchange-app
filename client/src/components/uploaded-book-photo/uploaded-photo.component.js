@@ -33,7 +33,7 @@ const UploadedPic = ({ photo, onChange }) => {
           withIcon={true}
           singleImage={true}
           label=""
-          buttonText="Upload Book Photo"
+          buttonText="Upload Photo"
           onChange={onDrop}
           imgExtension={[".jpg", ".png", ".gif", ".svg"]}
           maxFileSize={5242880}

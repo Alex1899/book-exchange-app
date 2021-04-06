@@ -35,22 +35,14 @@ const ProfilePage = () => {
             }
           />
         )}
-        <div className="mt-5" style={{width:200, backgroundSize: "cover"}}>
-          <img
-            className="profile-avatar rounded"
-            onClick={() => setShow(true)}
-            src={currentUser ? currentUser.avatar : ""}
-            style={{ width: 200 }}
-            alt=""
-          />
-        </div>
-        {/* <Image
+
+        <Image
           className="profile-avatar"
           onClick={()=>setShow(true)}
           src={currentUser ? currentUser.avatar : ""}
-          style={{ width: 200 }}
+          style={{ width: 200, height: 200}}
           roundedCircle
-        /> */}
+        />
 
         <div className="d-flex flex-column align-items-center mt-3">
           <h3 className="username mb-3">{currentUser.username}</h3>

@@ -31,10 +31,38 @@ const userSchema = mongoose.Schema(
       type: String,
     },
 
-    soldBooks: [{ type: Schema.Types.ObjectId, ref: "Book" }],
-    requestedBooks: [{ type: Schema.Types.ObjectId, ref: "Book" }],
-    purchasedBooks: [{ type: Schema.Types.ObjectId, ref: "Book" }],
-    currentlySelling: [{ type: Schema.Types.ObjectId, ref: "Book" }],
+    soldBooks: {
+      type: [
+        {
+          book: { type: Schema.Types.ObjectId, ref: "Book" },
+          date: Date,
+        },
+      ],
+    },
+    requestedBooks: {
+      type: [
+        {
+          book: { type: Schema.Types.ObjectId, ref: "Book" },
+          date: Date,
+        },
+      ],
+    },
+    purchasedBooks: {
+      type: [
+        {
+          book: { type: Schema.Types.ObjectId, ref: "Book" },
+          date: Date,
+        },
+      ],
+    },
+    currentlySelling: {
+      type: [
+        {
+          book: { type: Schema.Types.ObjectId, ref: "Book" },
+          date: Date,
+        },
+      ],
+    },
   },
   { timestamps: { createdAt: "created_at" } }
 );
