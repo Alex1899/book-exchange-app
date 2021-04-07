@@ -6,6 +6,10 @@ const { isEmail } = require("validator");
 
 const userSchema = mongoose.Schema(
   {
+    isVerified: {
+      type: Boolean, 
+      default: false
+    },
     fullname: {
       type: String,
       required: [true, "Please, enter a full name"],

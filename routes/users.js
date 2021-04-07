@@ -6,11 +6,17 @@ const userController = require("../controllers/userController");
 /* GET users listing. */
 router.post("/register", userController.registerUser);
 
+router.post("/verify-email", userController.verifyAccount)
+
+router.post("/resend/verification-link", userController.resendVerificationLink)
+
 router.post("/login", userController.loginUser);
 
 router.post("/avatar", userController.updateUserAvatar);
 
 router.post("/change/avatar", userController.updateUserAvatar);
+
+router.post("/auth/google", userController.logInWithGoogle)
 
 router.get("/:id", userController.getUserById);
 

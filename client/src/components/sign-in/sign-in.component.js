@@ -5,6 +5,7 @@ import { useStateValue } from "../../contexts/state.provider";
 import { ACTION } from "../../reducer/action-types/action-types";
 import axios from "axios";
 import AlertDialog from "../alert-dialog/alert-dialog.component";
+import { GoogleLogin } from "react-google-login";
 import "./sign-in.styles.scss";
 
 const SignIn = () => {
@@ -21,7 +22,7 @@ const SignIn = () => {
     axios
       .post("/users/login", form)
       .then((res) => {
-        console.log("log in",{ res });
+        console.log("log in", { res });
         dispatch({ type: ACTION.LOGIN_USER, payload: res.data });
       })
       .catch((e) => {
@@ -37,6 +38,19 @@ const SignIn = () => {
           console.log(e);
         }
       });
+  };
+
+  const handleGoogleLogin = async (googleData) => {
+    if(googleData.error){
+      setAlert({show: true, text:"Cookies are disabled in this environment \n\nYou can not sign in with Google :("})
+      return
+    }
+    const res = await axios.post("/users/auth/google", {
+      token: googleData.tokenId,
+    });
+    const data = await res.data;
+    dispatch({ type: ACTION.LOGIN_USER, payload: data });
+    // store returned user somehow
   };
 
   const handleChange = (event) => {
@@ -76,6 +90,13 @@ const SignIn = () => {
         />
         <div className="buttons">
           <CustomButton type="submit"> Sign in </CustomButton>
+          <GoogleLogin
+            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+            buttonText="Log in with Google"
+            onSuccess={handleGoogleLogin}
+            onFailure={handleGoogleLogin}
+            cookiePolicy="single_host_origin"
+          />
         </div>
       </form>
     </div>

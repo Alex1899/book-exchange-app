@@ -7,10 +7,12 @@ import axios from "axios";
 import { useStateValue } from "../../contexts/state.provider";
 import { ACTION } from "../../reducer/action-types/action-types";
 import "./sign-up.styles.scss";
+import { useHistory } from "react-router";
 
 const SignUp = () => {
   const { dispatch } = useStateValue();
   const [alert, setAlert] = useState({ show: false, text: "" });
+  const history = useHistory();
   const [form, setForm] = useState({
     fullname: "",
     username: "",
@@ -37,20 +39,21 @@ const SignUp = () => {
     axios
       .post("/users/register", form)
       .then((res) => {
-        console.log(res)
-        dispatch({ type: ACTION.LOGIN_USER, payload: res.data });
+        console.log(res);
+        history.push("/send-verification-link", { email });
+        // dispatch({ type: ACTION.LOGIN_USER, payload: res.data });
       })
-      .catch(e => {
-        if(e.response.data){
-          Object.values(e.response.data.errors).every(msg=> {
-            if(msg.length > 0){
-              setAlert({show: true, text: msg})
-              return false
+      .catch((e) => {
+        if (e.response.data) {
+          Object.values(e.response.data.errors).every((msg) => {
+            if (msg.length > 0) {
+              setAlert({ show: true, text: msg });
+              return false;
             }
-            return true
-          })
-        }else{
-          console.log(e)
+            return true;
+          });
+        } else {
+          console.log(e);
         }
       });
   };

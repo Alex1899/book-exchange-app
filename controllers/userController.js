@@ -1,10 +1,14 @@
 const User = require("../model/userSchema");
 const Book = require("../model/bookSchema");
+const Token = require("../model/verifytokenSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const crypto = require("crypto");
 const { cloudinary } = require("../utils/cloudinary");
-const { restart } = require("nodemon");
+const { OAuth2Client } = require("google-auth-library");
+const { sendMail } = require("../emailer/emailer");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // handle errors
 const handleErrors = (err) => {
@@ -43,7 +47,7 @@ const handleErrors = (err) => {
 const maxAge = 3 * 24 * 60 * 60;
 
 const createToken = (id) => {
-  return jwt.sign({ id }, "ajfhakjbfnal1931ou424ljanl", {
+  return jwt.sign({ id }, process.env.JWT_TOKEN, {
     expiresIn: maxAge,
   });
 };
@@ -83,8 +87,44 @@ module.exports.registerUser = async function (req, res, next) {
       currentlySelling: [],
       purchasedBooks: [],
     });
-    const token = createToken(user._id);
-    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+    const jwt_token = createToken(user._id);
+    res.cookie("jwt", jwt_token, { httpOnly: true, maxAge: maxAge * 1000 });
+
+    const token = await Token.create({
+      email,
+      token: crypto.randomBytes(16).toString("hex"),
+    });
+    let verifyLink = `${req.protocol}://localhost:3000/verify-email/${user._id}/${token.token}`;
+
+    let sendToken = {
+      from: process.env.SERVER_EMAIL,
+      to: email,
+      subject: `Southampton Uni Book Exchange - Account Verification Link`,
+      text: `Hello, ${fullname}! \n\nPlease follow the link below to verify your account.\n\n${verifyLink}\n\nBest regards,\nBook Exchange Team`,
+    };
+    sendMail(sendToken);
+    console.log("Verify link sent to the user's email...");
+    res.send({ status: "Verify email sent" });
+  } catch (err) {
+    const errors = handleErrors(err);
+    return res.status(400).send({ errors });
+  }
+};
+
+module.exports.verifyAccount = async (req, res, next) => {
+  const { id, token } = req.body;
+  console.log("received", id, token);
+  const user = await User.findOne({ _id: id });
+  const checkToken = await Token.findOne({ email: user.email });
+
+  if (!checkToken) {
+    console.log("Error: No token is tied to this user");
+    res.status(400);
+    return;
+  }
+  if (token === checkToken.token) {
+    console.log("User verification successful...");
+    await user.updateOne({ isVerified: true }, { new: true });
     res.send({
       username: user.username,
       userId: user._id,
@@ -94,10 +134,35 @@ module.exports.registerUser = async function (req, res, next) {
       currentlySelling: user.currentlySelling,
       purchasedBooks: user.purchasedBooks,
     });
-  } catch (err) {
-    const errors = handleErrors(err);
-    return res.status(400).send({ errors });
+  } else {
+    console.log("User verification failed :(");
+    res.status(400).send({ errors: { msg: "Verification failed" } });
   }
+};
+
+module.exports.resendVerificationLink = async (req, res, next) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    console.log("User with this email has not signed up!");
+    res.status(400);
+    return;
+  }
+  const token = await Token.findOne({ email });
+  if (!token) {
+    console.log("Error: There is no token associated to this user");
+    res.status(400);
+    return;
+  }
+  let verifyLink = `${req.protocol}://localhost:3000/users/verify-account/${user._id}/${token.token}`;
+  let sendToken = {
+    from: process.env.SERVER_EMAIL,
+    to: email,
+    subject: `Southampton Uni Book Exchange - Resent Account Verification Link`,
+    text: `Hello, ${user.fullname}! \n\nPlease follow the link below to verify your account.\n\n${verifyLink}\n\nBest regards,\nBook Exchange Team`,
+  };
+  sendMail(sendToken);
+  res.send({ status: "Resent verify email successfully" });
 };
 
 module.exports.loginUser = async function (req, res, next) {
@@ -135,6 +200,51 @@ module.exports.loginUser = async function (req, res, next) {
     soldBooks: user.soldBooks,
     currentlySelling: user.currentlySelling,
     purchasedBooks: user.purchasedBooks,
+  });
+};
+
+module.exports.logInWithGoogle = async (req, res, next) => {
+  const { token } = req.body;
+  if (!token) {
+    console.log("No token supplied. Aborting...");
+    return;
+  }
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+  const { name, email, picture } = ticket.getPayload();
+
+  const userExists = await User.findOne({ email: email });
+  let newUser;
+  let finalUser;
+  if (!userExists) {
+    let password = email + process.env.JWT_TOKEN;
+    newUser = await User.create({
+      fullname: name,
+      username: name,
+      email,
+      password,
+      avatar: picture,
+      soldBooks: [],
+      requestedBooks: [],
+      currentlySelling: [],
+      purchasedBooks: [],
+    });
+
+    finalUser = newUser;
+  } else {
+    finalUser = userExists;
+  }
+
+  res.send({
+    username: finalUser.username,
+    userId: finalUser._id,
+    avatar: finalUser.avatar,
+    requestedBooks: finalUser.requestedBooks,
+    soldBooks: finalUser.soldBooks,
+    currentlySelling: finalUser.currentlySelling,
+    purchasedBooks: finalUser.purchasedBooks,
   });
 };
 
