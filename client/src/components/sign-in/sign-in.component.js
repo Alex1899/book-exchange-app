@@ -22,8 +22,8 @@ const SignIn = () => {
     axios
       .post("/users/login", form)
       .then((res) => {
-        console.log("log in", { res });
-        dispatch({ type: ACTION.LOGIN_USER, payload: res.data });
+        console.log("log in", res );
+        dispatch({ type: ACTION.LOGIN_USER, payload: res.data.userInfo });
       })
       .catch((e) => {
         if (e.response.data) {
@@ -49,7 +49,7 @@ const SignIn = () => {
       token: googleData.tokenId,
     });
     const data = await res.data;
-    dispatch({ type: ACTION.LOGIN_USER, payload: data });
+    dispatch({ type: ACTION.LOGIN_USER, payload: data.userInfo });
     // store returned user somehow
   };
 

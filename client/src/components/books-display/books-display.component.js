@@ -7,56 +7,32 @@ import HorizontalLine from "../horizontal-line/horizontal-line.component";
 import axios from "axios";
 import DatePicker from "react-datepicker";
 import "./books-display.styles.scss";
-import { Button } from "react-bootstrap";
 import CustomButton from "../custom-button/custom-button.component";
 
 const BooksDisplay = () => {
-  const {
-    state: { currentUser },
-    dispatch,
-  } = useStateValue();
-  const { userId, purchasedBooks, currentlySelling, soldBooks } = currentUser;
-  const [books, setBooks] = useState({
-    type: "purchasedBooks",
-    data: null,
-  });
+  const { state: { currentUser }} = useStateValue();
+  const { userId } = currentUser;
+  const [booksType, setBooksType] = useState("purchasedBooks");
+  const [books, setBooks] = useState(null);
+  const [filteredData, setFilteredData] = useState(null);
   const [alert, setAlert] = useState({ show: false, text: "" });
   const [selectCustomDates, toggleSelectCustomDates] = useState(false);
   const [customDate, setCustomDate] = useState(null);
   let currDate = new Date();
-  console.log("purchasedbooks", purchasedBooks);
 
   useEffect(() => {
-    if (!books.data) {
-      axios
-        .get(`/users/${userId}/books`)
-        .then((res) => {
-          console.log("getbooks ", res.data);
-          dispatch({ type: ACTION.UPDATE_USER_BOOKS, payload: res.data });
-          setBooks({...books, data: [...res.data.purchasedBooks]});
-        })
-        .catch((e) => console.log(e));
-    }
-  }, [userId, books, dispatch]);
+    axios
+      .get(`/books/${userId}/${booksType}`)
+      .then((res) => {
+        console.log("getbooks ", res.data);
+        setBooks([...res.data.books]);
+      })
+      .catch((e) => console.log(e));
+  }, [userId, booksType]);
 
   const handleClick = (e) => {
     const type = e.target.id;
-    switch (type) {
-      case "purchasedBooks":
-        setBooks({ type, data: purchasedBooks });
-        break;
-
-      case "soldBooks":
-        setBooks({ type, data: soldBooks });
-        break;
-
-      case "currentlySelling":
-        setBooks({ type, data: currentlySelling });
-        break;
-      default:
-        console.log("Wrong book type");
-        break;
-    }
+    setBooksType(type);
   };
 
   const getWeek = (date) => {
@@ -71,38 +47,29 @@ const BooksDisplay = () => {
     switch (period) {
       case "Last week":
         let lastWeek = getWeek(currDate) - 1;
-        setBooks({
-          ...books,
-          data: books.data.filter(
-            ({ date }) => getWeek(new Date(date)) === lastWeek
-          ),
-        });
+        setFilteredData([
+          books.filter(({ date }) => getWeek(new Date(date)) === lastWeek),
+        ]);
         break;
 
       case "Last month":
         let lastMonth = currDate.getMonth() - 1;
-        setBooks({
-          ...books,
-          data: books.data.filter(
-            ({ date }) => new Date(date).getMonth() === lastMonth
-          ),
-        });
+        setFilteredData([
+          books.filter(({ date }) => new Date(date).getMonth() === lastMonth),
+        ]);
         break;
 
       case "Last year":
         let lastYear = currDate.getFullYear() - 1;
-        setBooks({
-          ...books,
-          data: books.data.filter(
-            ({ date }) => new Date(date).getFullYear() === lastYear
-          ),
-        });
+        setFilteredData([
+          books.filter(({ date }) => new Date(date).getFullYear() === lastYear),
+        ]);
         break;
       case "Custom dates":
         toggleSelectCustomDates(!selectCustomDates);
         break;
       default:
-        setBooks({ ...books, data: currentUser[books.type] });
+        setFilteredData([...books]);
         break;
     }
   };
@@ -143,14 +110,13 @@ const BooksDisplay = () => {
 
         // reached here, all good
         console.log("Reached here, all good");
-        setBooks({
-          ...books,
-          data: books.data.filter(
+        setFilteredData([
+          books.filter(
             ({ date }) =>
               new Date(customDate.startDate) >= new Date(date) &&
               new Date(date) <= new Date(customDate.endDate)
           ),
-        });
+        ]);
         return;
       } else {
         setAlert({
@@ -179,21 +145,21 @@ const BooksDisplay = () => {
       <div className="d-flex justify-content-center types-div">
         <p
           id="purchasedBooks"
-          className={`${books.type === "purchasedBooks" && "p-active"} mr-5`}
+          className={`${booksType === "purchasedBooks" && "p-active"} mr-5`}
           onClick={handleClick}
         >
           Purchased
         </p>
         <p
           id="soldBooks"
-          className={`${books.type === "soldBooks" && "p-active"}`}
+          className={`${booksType === "soldBooks" && "p-active"}`}
           onClick={handleClick}
         >
           Sold
         </p>
         <p
           id="currentlySelling"
-          className={`${books.type === "currentlySelling" && "p-active"} ml-5`}
+          className={`${booksType === "currentlySelling" && "p-active"} ml-5`}
           onClick={handleClick}
         >
           Selling
@@ -258,16 +224,16 @@ const BooksDisplay = () => {
 
       {/* List book components */}
       <div className="d-flex flex-column align-center mt-4">
-        {books.data &&
-          (books.data.length > 0 ? (
-            books.data.map(({ book, date }, i) => (
+        {filteredData &&
+          (filteredData.length > 0 ? (
+            filteredData.map(({ book, date }, i) => (
               <div key={i}>
-                <ProfileBook data={{book, date, type: books.type}}/>
+                <ProfileBook data={{ book, date, type: booksType }} />
                 <HorizontalLine color="lightgrey" />
               </div>
             ))
           ) : (
-            <div>User has no {books.type} books</div>
+            <div>User has no {booksType} books</div>
           ))}
       </div>
     </div>

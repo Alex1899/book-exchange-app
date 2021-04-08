@@ -13,6 +13,7 @@ import SignInAndSignUpPage from "./pages/sign-in-and-sign-up/sign-in-and-sign-up
 import BookPage from "./pages/book-page/book-page.component";
 import SendVerificationLink from "./pages/send-verification-link/send-verification-link.component";
 import VerificationDone from "./pages/verification-done/verification-done.component";
+import NotFoundPage from "./pages/404/not-found.component";
 
 const App = () => {
   const {
@@ -69,6 +70,7 @@ const App = () => {
         />
 
         <Route path="/verify-email/:id/:token" render={({match: {params}}) => <VerificationDone params={params}/>}/>
+        <Route path="*" component={NotFoundPage}/>
       </Switch>
       <Footer />
     </div>

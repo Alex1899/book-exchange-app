@@ -5,7 +5,10 @@ import axios from "axios";
 import { ACTION } from "../../reducer/action-types/action-types";
 import BooksDisplay from "../../components/books-display/books-display.component";
 import ChangeAvatar from "../../components/change-avatar/change-avatar.component";
+import { handleErrors } from "../../utils/utils";
 import "./profile.styles.scss";
+import AlertDialog from "../../components/alert-dialog/alert-dialog.component";
+import { useHistory } from "react-router";
 
 const ProfilePage = () => {
   const {
@@ -14,16 +17,28 @@ const ProfilePage = () => {
   } = useStateValue();
   const [counts, setCounts] = useState(null);
   const [show, setShow] = useState(false);
+  const [alert, setAlert] = useState({ show: false, text: "" });
+  const history = useHistory()
 
   useEffect(() => {
     axios
       .get(`/users/${currentUser.userId}/books-count`)
       .then((res) => setCounts({ ...res.data.counts }))
-      .catch((e) => console.log(e));
+      .catch((e) => handleErrors(e, (text) => setAlert({ show: true, text })));
   }, [currentUser]);
 
   return (
     <div className="d-flex flex-column">
+      {alert.show && (
+        <AlertDialog
+          show={alert.show}
+          text={alert.text}
+          handleClose={() => {
+            setAlert({ ...alert, show: !alert.show });
+            history.push("/")
+          }}
+        />
+      )}
       <div className="profile-info d-flex flex-column align-items-center">
         {show && (
           <ChangeAvatar
@@ -38,9 +53,9 @@ const ProfilePage = () => {
 
         <Image
           className="profile-avatar"
-          onClick={()=>setShow(true)}
+          onClick={() => setShow(true)}
           src={currentUser ? currentUser.avatar : ""}
-          style={{ width: 200, height: 200}}
+          style={{ width: 200, height: 200 }}
           roundedCircle
         />
 

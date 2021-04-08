@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useStateValue } from "../../contexts/state.provider";
-import { ACTION } from "../../reducer/action-types/action-types";
+
 import Spinner from "../../components/spinner/spinner.component";
 import AlertDialog from "../../components/alert-dialog/alert-dialog.component";
 import { useHistory } from "react-router";
 
 const VerificationDone = ({ params }) => {
-  const { dispatch } = useStateValue();
   const [alert, setAlert] = useState({ show: false, text: "" });
   const history = useHistory();
   const [data, setData] = useState(null);
@@ -25,12 +23,11 @@ const VerificationDone = ({ params }) => {
         })
         .catch((e) => console.log(e));
     }
-  }, [data, dispatch, id, token]);
+  }, [data, id, token]);
 
   const handleClose = () => {
     setAlert({ ...alert, show: false });
-    dispatch({ type: ACTION.LOGIN_USER, payload: data });
-    history.push("/");
+    history.push("/signin");
   };
 
   return (
@@ -39,7 +36,7 @@ const VerificationDone = ({ params }) => {
         {data ? (
           <AlertDialog
             show={!alert.show}
-            text="Verification completed successfully!"
+            text="Verification completed successfully! You can now log in to your account"
             handleClose={handleClose}
           />
         ) : (

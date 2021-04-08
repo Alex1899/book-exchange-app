@@ -13,11 +13,8 @@ export function reducer(state = initialState, action) {
           ...state.currentUser,
           username: action.payload.username,
           userId: action.payload.userId,
+          email: action.payload.email,
           avatar: action.payload.avatar,
-          requestedBooks: action.payload.requestedBooks,
-          soldBooks: action.payload.soldBooks,
-          purchasedBooks: action.payload.purchasedBooks,
-          currentlySelling: action.payload.currentlySelling,
         },
       };
     case ACTION.LOGOUT_USER:
@@ -34,25 +31,6 @@ export function reducer(state = initialState, action) {
         },
       };
 
-    case ACTION.UPDATE_CURRENTLY_SELLING:
-      return {
-        ...state,
-        currentUser: {
-          ...state.currentUser,
-          currentlySelling: action.payload.currentlySelling,
-        },
-      };
-    case ACTION.UPDATE_USER_BOOKS:
-      return {
-        ...state,
-        currentUser: {
-          ...state.currentUser,
-          requestedBooks: action.payload.requestedBooks,
-          soldBooks: action.payload.soldBooks,
-          purchasedBooks: action.payload.purchasedBooks,
-          currentlySelling: action.payload.currentlySelling,
-        },
-      };
     default:
       return state;
   }

@@ -5,52 +5,12 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const crypto = require("crypto");
+const jwtDecode = require("jwt-decode");
 const { cloudinary } = require("../utils/cloudinary");
 const { OAuth2Client } = require("google-auth-library");
 const { sendMail } = require("../emailer/emailer");
+const { handleErrors, createToken } = require("./utils");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-// handle errors
-const handleErrors = (err) => {
-  console.log(err.message, err.code);
-  let errors = { email: "", password: "", fullname: "", username: "" };
-
-  // duplicate error code
-  if (err.code === 11000) {
-    Object.keys(err.keyValue).forEach((key) => {
-      let message;
-      if (key === "email") {
-        message = "User with this email already exists";
-      }
-
-      if (key === "username") {
-        message = "User with this username already exists";
-      }
-
-      errors[key] = message;
-    });
-  }
-
-  // validation errros
-  if (err.message.includes("User validation failed")) {
-    Object.values(err.errors).forEach(({ properties }) => {
-      errors[properties.path] = properties.message;
-    });
-  }
-
-  if (err.message.includes("duplicate key error")) {
-  }
-
-  return errors;
-};
-
-const maxAge = 3 * 24 * 60 * 60;
-
-const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_TOKEN, {
-    expiresIn: maxAge,
-  });
-};
 
 module.exports.registerUser = async function (req, res, next) {
   console.log("Post data =>", req.body);
@@ -87,8 +47,6 @@ module.exports.registerUser = async function (req, res, next) {
       currentlySelling: [],
       purchasedBooks: [],
     });
-    const jwt_token = createToken(user._id);
-    res.cookie("jwt", jwt_token, { httpOnly: true, maxAge: maxAge * 1000 });
 
     const token = await Token.create({
       email,
@@ -125,15 +83,7 @@ module.exports.verifyAccount = async (req, res, next) => {
   if (token === checkToken.token) {
     console.log("User verification successful...");
     await user.updateOne({ isVerified: true }, { new: true });
-    res.send({
-      username: user.username,
-      userId: user._id,
-      avatar: user.avatar,
-      soldBooks: user.soldBooks,
-      requestedBooks: user.requestedBooks,
-      currentlySelling: user.currentlySelling,
-      purchasedBooks: user.purchasedBooks,
-    });
+    res.send({ status: "Verification success" });
   } else {
     console.log("User verification failed :(");
     res.status(400).send({ errors: { msg: "Verification failed" } });
@@ -184,23 +134,19 @@ module.exports.loginUser = async function (req, res, next) {
       .status(400)
       .send({ errors: { msg: "Incorrect password for this user" } });
   }
-
-  // await user
-  //   .populate("currentlySelling")
-  //   .populate("soldBooks")
-  //   .populate("purchasedBooks")
-  //   .populate("requestedBooks")
-  //   .execPopulate();
-
-  res.send({
-    username: user.username,
+  let userInfo = {
     userId: user._id,
+    email: user.email,
+    username: user.username,
     avatar: user.avatar,
-    requestedBooks: user.requestedBooks,
-    soldBooks: user.soldBooks,
-    currentlySelling: user.currentlySelling,
-    purchasedBooks: user.purchasedBooks,
-  });
+  };
+  const jwt_token = createToken(userInfo);
+  const decodedToken = jwtDecode(jwt_token);
+  const expiresAt = decodedToken.exp;
+
+  res.cookie("jwt", jwt_token, { httpOnly: true });
+
+  res.send({ token: jwt_token, expiresAt, userInfo });
 };
 
 module.exports.logInWithGoogle = async (req, res, next) => {
@@ -237,15 +183,18 @@ module.exports.logInWithGoogle = async (req, res, next) => {
     finalUser = userExists;
   }
 
-  res.send({
-    username: finalUser.username,
+  let userInfo = {
     userId: finalUser._id,
+    email: finalUser.email,
+    username: finalUser.username,
     avatar: finalUser.avatar,
-    requestedBooks: finalUser.requestedBooks,
-    soldBooks: finalUser.soldBooks,
-    currentlySelling: finalUser.currentlySelling,
-    purchasedBooks: finalUser.purchasedBooks,
-  });
+  };
+  const jwt_token = createToken(userInfo);
+  const decodedToken = jwtDecode(jwt_token);
+  const expiresAt = decodedToken.exp;
+
+  res.cookie("jwt", jwt_token, { httpOnly: true });
+  res.send({ token: jwt_token, expiresAt, userInfo });
 };
 
 module.exports.updateUserAvatar = async function (req, res, next) {

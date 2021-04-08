@@ -2,6 +2,7 @@ const { cloudinary } = require("../utils/cloudinary");
 const Book = require("../model/bookSchema");
 const User = require("../model/userSchema");
 const { sendMail } = require("../emailer/emailer");
+const createError = require("http-errors")
 
 module.exports.addBookToDB = async (req, res, next) => {
   let data = req.body;
@@ -183,10 +184,12 @@ module.exports.getBookById = async (req, res, next) => {
 
   const book = await Book.findOne({ _id: id });
 
-  if (!book)
+  if (!book){
+  console.log(createError(404, "Book not found"))
     return res
       .status(404)
-      .send({ errors: { msg: "Books not found with these details" } });
+      .send({ errors: { msg: "Book not found with these details" } });
+  }
 
   res.send({ book });
 };
@@ -347,4 +350,11 @@ module.exports.addReview = async (req, res, next) => {
     console.log(e);
     res.status(500).send({ errors: { msg: "Error while adding the review" } });
   }
+};
+
+module.exports.getUsersBookByType = async (req, res, next) => {
+  const { id, type } = req.params;
+  const user = await User.findOne({_id: id})
+  const books = user[type]
+  res.send({books})
 };
