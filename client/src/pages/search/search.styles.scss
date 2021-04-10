@@ -1,0 +1,27 @@
+
+.search-div {
+    display: flex;
+    margin-top: 30px;
+    justify-content: space-around;
+
+    .search-results{
+        display: flex;
+        flex-direction: column;
+        width: 50%;
+        padding: 30px;
+        background-color: "white";
+     
+    }
+    
+
+    @media only screen and (max-width: 600px){
+        flex-direction: column;
+        align-items: center;
+
+        .search-results {
+            width: 100%;
+        }
+        
+    }
+}
+

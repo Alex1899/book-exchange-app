@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import Rating from "@material-ui/lab/Rating";
 import FormInput from "../../components/form-input/form-input.component";
-import axios from "axios";
 import AlertDialog from "../../components/alert-dialog/alert-dialog.component";
+import { useAxios } from "../../contexts/fetch.context";
 import "./add-review.styles.scss";
+import { handleErrors} from "../../utils/utils"
 import CustomButton from "../../components/custom-button/custom-button.component";
 const AddReview = ({ bookId, userId }) => {
   const [book, setBook] = useState(null);
-  console.log("review book", book);
+  const { authAxios } = useAxios();
   const history = useHistory();
   const [alert, setAlert] = useState({ show: false, text: "" });
   const [review, setReview] = useState({
@@ -19,12 +20,12 @@ const AddReview = ({ bookId, userId }) => {
 
   useEffect(() => {
     if (!book) {
-      axios
+      authAxios
         .get(`/books/${bookId}`)
         .then((res) => setBook(res.data.book))
         .catch((e) => console.log(e));
     }
-  }, [book, bookId]);
+  }, [book, authAxios, bookId]);
 
   const handleSubmit = () => {
     if (!review.headline) {
@@ -42,8 +43,8 @@ const AddReview = ({ bookId, userId }) => {
       return;
     }
 
-    axios
-      .post("http://localhost:42069/books/add-review", {
+    authAxios
+      .post("books/add-review", {
         bookId,
         userId,
         review,
@@ -53,7 +54,7 @@ const AddReview = ({ bookId, userId }) => {
         setBook({ ...book, reviews: res.data.reviews });
         setAlert({ show: true, text: "Review added successfully!" });
       })
-      .catch((e) => console.log(e));
+      .catch((e) => handleErrors(e, text=> setAlert({show:true, text})));
 
     setReview({ headline: "", rating: 0, comment: "" });
   };
@@ -74,10 +75,10 @@ const AddReview = ({ bookId, userId }) => {
           onClick={() => history.push(`/book/${bookId}`)}
         >
           <h3 className="font-weight-bold mb-4">Create Review</h3>
-          <div className="d-flex align-items-center">
+          <div className="book-image-title">
             <img
+              className="review-book-image"
               src={book ? book.photoId : ""}
-              style={{ width: 200 }}
               alt="book"
             />
             <p style={{ fontSize: 20, marginLeft: 20 }}>
@@ -99,36 +100,40 @@ const AddReview = ({ bookId, userId }) => {
         </div>
 
         {/* Headline */}
-        <div className="d-flex flex-column mt-4">
-          <h3 className="font-weight-bold">Add a headline</h3>
-          <FormInput
-            type="text"
-            style={{ marginTop: -10, marginBottom: -10 }}
-            value={review.headline}
-            placeholder="What's most important to know?"
-            handleChange={(e) =>
-              setReview({ ...review, headline: e.target.value })
-            }
-            required
-          />
-        </div>
+        <div className="review-container">
+          <div className="d-flex flex-column mt-4">
+            <h3 className="font-weight-bold">Add a headline</h3>
+            <FormInput
+              type="text"
+              style={{ marginTop: -10, marginBottom: -10 }}
+              value={review.headline}
+              placeholder="What's most important to know?"
+              handleChange={(e) =>
+                setReview({ ...review, headline: e.target.value })
+              }
+              required
+            />
+          </div>
 
-        {/* Comment */}
-        <div className="d-flex flex-column mt-4 mb-5">
-          <h3 className="font-weight-bold mb-4">Add a written review</h3>
-          <textarea
-            onChange={(e) => setReview({ ...review, comment: e.target.value })}
-            className="b-textarea mt-2"
-            value={review.comment}
-            spellCheck={true}
-            placeholder="What did you like or dislike? What did you use this product for?"
-            rows={4}
-          ></textarea>
-        </div>
+          {/* Comment */}
+          <div className="d-flex flex-column mt-4 mb-5">
+            <h3 className="font-weight-bold mb-4">Add a written review</h3>
+            <textarea
+              onChange={(e) =>
+                setReview({ ...review, comment: e.target.value })
+              }
+              className="b-textarea mt-2"
+              value={review.comment}
+              spellCheck={true}
+              placeholder="What did you like or dislike? What did you use this product for?"
+              rows={4}
+            ></textarea>
+          </div>
 
-        <CustomButton type="submit" onClick={handleSubmit}>
-          Submit
-        </CustomButton>
+          <CustomButton type="submit" onClick={handleSubmit}>
+            Submit
+          </CustomButton>
+        </div>
       </div>
     </div>
   );

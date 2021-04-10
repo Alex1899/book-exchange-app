@@ -1,33 +1,134 @@
-.book-page-info > p {
-  margin: 0;
-}
+.book-page {
+  display: flex;
+  flex-direction: column;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  justify-content: center;
 
-.condition-div,
-.price-div {
-  border: 1px solid lightgray;
-  padding: 0 10px;
-  border-radius: 5px;
-}
+  .book-info-section {
+    display: flex;
+    justify-content: center;
 
-.requested-div {
-  width: 100%;
-  background-color: black;
-  border: 1px solid black;
-  height: 50px;
-  p, svg {
-    color: white;
+    .book-image-div {
+      width: 400px;
+      margin-right: 20px;
+    }
+
+    .book-page-info {
+      display: flex;
+      flex-direction: column;
+      width: 500px;
+      p {
+        margin: 0;
+      }
+
+      .book-details-div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 10px;
+      }
+    }
+
+    .condition-div,
+    .price-div {
+      border: 1px solid lightgray;
+      padding: 0 10px;
+      border-radius: 5px;
+    }
+
+    .requested-div {
+      width: 100%;
+      background-color: black;
+      border: 1px solid black;
+      height: 50px;
+      p,
+      svg {
+        color: white;
+      }
+    }
+
+    .requested-user-div{
+      display: flex;
+      flex-direction: column;
+    }
+
+    .requested-div:hover {
+      background-color: white;
+      p,
+      svg {
+        color: black;
+      }
+    }
+
+    .condition-div > p,
+    .price-div > P {
+      margin: 0;
+    }
   }
 
-}
+  .reviews-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-.requested-div:hover {
-  background-color: white;
-  p,svg {
-    color: black;
+    .add-review-section {
+      display: flex;
+      flex-direction: column;
+      width: 400px;
+      margin-right: 20px;
+
+      .add-review-div {
+        display: flex;
+        width: 60%;
+        justify-content: center;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid lightgray;
+        box-shadow: 0 0 3px 1px #888;
+        margin-top: 15px;
+
+        &:hover {
+          opacity: 0.8;
+          cursor: pointer;
+        }
+      }
+    }
   }
-}
 
-.condition-div > p,
-.price-div > P {
-  margin: 0;
+  @media only screen and (max-width: 600px) {
+    .book-info-section {
+      flex-direction: column;
+
+      .book-image-div,
+      .book-page-info {
+        width: 100vw;
+        padding: 10px;
+      }
+
+      .book-page-info {
+        align-items: center;
+        border-bottom: 1px solid lightgray;
+        padding-bottom: 30px;
+
+       .requested-user-message{
+          text-align: center;
+        }
+
+      }
+    }
+
+    .reviews-section {
+      flex-direction: column;
+      background-color: white;
+
+      .add-review-section {
+        width: 100vw;
+        align-items: center;
+        padding-top: 10px;
+        margin-top: 20px;
+        margin-right: 0;
+      }
+    }
+  }
 }

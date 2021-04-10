@@ -1,11 +1,15 @@
-.list-book {
+.list-book-div {
   display: flex;
-  justify-content: center;
-  margin-top: 50px;
-  margin-left: 40px;
+  flex-direction: column;
 
-  .uploader {
-    width: 200px;
-    margin-right: 50px;
+
+  @media only screen and (max-width: 600px) {
+    .title {
+      margin-top: 20px;
+      color:white;
+      font-weight: bold;
+    }
+
+
   }
 }

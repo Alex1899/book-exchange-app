@@ -1,92 +1,91 @@
 import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { Person, BoxArrowRight } from "react-bootstrap-icons";
-import { DropdownButton, Dropdown } from "react-bootstrap";
-import { useStateValue } from "../../contexts/state.provider";
-import { ACTION } from "../../reducer/action-types/action-types";
+import { Navbar, NavDropdown, Nav } from "react-bootstrap";
+import { useStateValue } from "../../contexts/auth.context";
 import "./header.styles.scss";
 
 const Header = () => {
   const [active, setActive] = useState("");
-  const {
-    state: { currentUser },
-    dispatch,
-  } = useStateValue();
+  const authContext = useStateValue();
   const history = useHistory();
 
   const handleClick = (e) => {
     const clicked = e.target.id;
-
     setActive(clicked);
   };
 
   return (
-    <nav className="header d-flex align-items-center ml-4">
-      <Link to="/" onClick={() => setActive("home")}>
+    <Navbar collapseOnSelect expand="md" bg="light" variant="light">
+      <Navbar.Brand href="/">
         <img
           style={{ width: 150, marginRight: 50 }}
           src="/assets/logo.png"
           alt="University of Southampton"
         />
-      </Link>
+      </Navbar.Brand>
+      <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+      <Navbar.Collapse id="responsive-navbar-nav">
+        <Nav className="mr-auto">
+          <Link
+            id="home"
+            className={`link ${active === "home" && "active"}`}
+            to="/"
+            onClick={handleClick}
+          >
+            Home
+          </Link>
+          <Link
+            id="search"
+            className={`link ${active === "search" && "active"}`}
+            to="/search"
+            onClick={handleClick}
+          >
+            Search
+          </Link>
+          <Link
+            id="list-book"
+            className={`link ${active === "list-book" && "active"}`}
+            to="/list-book"
+            onClick={handleClick}
+          >
+            List Book
+          </Link>
+        </Nav>
+        <Nav>
+          {authContext.isAuthenticated() ? (
+            <NavDropdown
+              title={`Hello, ${authContext.userInfo.username}!`}
+              id="collasible-nav-dropdown"
+            >
+              <NavDropdown.Item
+                className="d-flex align-items-center"
+                onClick={() => {
+                  setActive("");
+                  history.push("/profile");
+                }}
+              >
+                <Person className="mr-2" />
+                My Account
+              </NavDropdown.Item>
+              <NavDropdown.Item
+                className="d-flex align-items-center"
+                onClick={() => authContext.logout()}
+              >
+                <BoxArrowRight className="mr-2" />
+                Sign Out
+              </NavDropdown.Item>
+            </NavDropdown>
+          ) : (
+            <Link className="link" to="/signin">
+              Sign In
+            </Link>
+          )}
+        </Nav>
+      </Navbar.Collapse>
+    </Navbar>
 
-      <div className="d-flex">
-        <Link
-          id="home"
-          onClick={handleClick}
-          className={`link ${active === "home" && "active"}`}
-          to="/"
-        >
-          Home
-        </Link>
-        <Link
-          id="search"
-          onClick={handleClick}
-          className={`link ${active === "search" && "active"}`}
-          to="/search"
-        >
-          Search
-        </Link>
-        <Link
-          id="list-books"
-          onClick={handleClick}
-          className={`link ${active === "list-books" && "active"}`}
-          to="/list-book"
-        >
-          List Books
-        </Link>
-      </div>
-      {currentUser ? (
-        <div className="d-flex ml-auto">
-          <DropdownButton variant="" title={`Hello, ${currentUser.username}`}>
-            {/* <Dropdown.ItemText>Dropdown item text</Dropdown.ItemText> */}
-            <Dropdown.Item
-              as="button"
-              className="d-flex align-items-center"
-              onClick={() => {
-                setActive("");
-                history.push("/profile");
-              }}
-            >
-              <Person className="mr-2" />
-              My Account
-            </Dropdown.Item>
-            <Dropdown.Item
-              as="button"
-              className="d-flex align-items-center"
-              onClick={() => dispatch({ type: ACTION.LOGOUT_USER })}
-            >
-              <BoxArrowRight className="mr-2" />
-              Sign Out
-            </Dropdown.Item>
-          </DropdownButton>
-        </div>
-      ) : (
-        <Link className="link ml-auto" to="/signin">
-          Sign In
-        </Link>
-      )}
-    </nav>
+  
   );
 };
 

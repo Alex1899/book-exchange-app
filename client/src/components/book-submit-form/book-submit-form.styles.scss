@@ -1,33 +1,61 @@
 $sub-color: grey;
 
-.list-form {
-  width: 400px;
-}
-.react-datepicker-wrapper {
-  // width: 100%;
+.submit-div {
+  display: flex;
 
-  input {
-    width: 100%;
-    text-align: center;
+  .react-datepicker-wrapper {
+    // width: 100%;
+
+    input {
+      width: 100%;
+      text-align: center;
+      border: none;
+      border-bottom: 1px solid gray;
+    }
+    input:hover {
+      cursor: pointer;
+    }
+  }
+  .select-css {
+    height: 45px;
     border: none;
     border-bottom: 1px solid gray;
   }
-  input:hover{
-    cursor: pointer;
-  }
-}
-.select-css {
-  height: 45px;
-  border:none;
-  border-bottom: 1px solid gray;
-}
 
-.select-css:focus{
-  outline: none;
-}
-textarea {
-  width: 100%;
-}
-textarea:focus {
-  outline: none;
+  .submit-book-div {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+
+    .submit-book-form {
+      width: 100%;
+    }
+  }
+
+  .select-css:focus {
+    outline: none;
+  }
+  textarea {
+    width: 100%;
+  }
+  textarea:focus {
+    outline: none;
+  }
+
+  @media only screen and (max-width: 600px) {
+    flex-direction: column;
+    align-items: center;
+
+    .submit-book-div {
+      margin-top: 40px;
+      margin-left: 0;
+      align-items: center;
+      width: 300px;
+
+      .cust-btn {
+        display: flex;
+        justify-content: center;
+      }
+    }
+  }
 }

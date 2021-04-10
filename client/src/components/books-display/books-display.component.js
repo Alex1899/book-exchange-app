@@ -1,38 +1,72 @@
 import React, { useState, useEffect } from "react";
-import { useStateValue } from "../../contexts/state.provider";
-import { ACTION } from "../../reducer/action-types/action-types";
+import { useStateValue } from "../../contexts/auth.context";
 import AlertDialog from "../alert-dialog/alert-dialog.component";
 import ProfileBook from "../profile-book/profile-book.component";
 import HorizontalLine from "../horizontal-line/horizontal-line.component";
-import axios from "axios";
+import { useAxios } from "../../contexts/fetch.context";
+import Spinner from "../spinner/spinner.component";
 import DatePicker from "react-datepicker";
 import "./books-display.styles.scss";
 import CustomButton from "../custom-button/custom-button.component";
 
+const hm = {
+  purchasedBooks: "purchased books",
+  soldBooks: "sold books",
+  currentlySelling: "selling book",
+  allBooks: "books",
+};
+
 const BooksDisplay = () => {
-  const { state: { currentUser }} = useStateValue();
-  const { userId } = currentUser;
-  const [booksType, setBooksType] = useState("purchasedBooks");
-  const [books, setBooks] = useState(null);
-  const [filteredData, setFilteredData] = useState(null);
+  const {
+    userInfo: { userId },
+  } = useStateValue();
+  const [fetching, setFetching] = useState(true);
+  const { authAxios } = useAxios();
+  const [state, setState] = useState({
+    books: null,
+    filteredBooks: null,
+    booksType: "allBooks",
+  });
   const [alert, setAlert] = useState({ show: false, text: "" });
   const [selectCustomDates, toggleSelectCustomDates] = useState(false);
   const [customDate, setCustomDate] = useState(null);
   let currDate = new Date();
 
   useEffect(() => {
-    axios
-      .get(`/books/${userId}/${booksType}`)
+    if (!state.books) {
+      authAxios
+        .get(`/books/${userId}/allBooks`)
+        .then((res) => {
+          setState({
+            ...state,
+            books: res.data.books,
+            filteredBooks: res.data.books,
+          });
+          setFetching(!fetching);
+        })
+        .catch((e) => console.log(e));
+    }
+  }, [state, authAxios, fetching, userId]);
+
+  const fetchData = (type) => {
+    setFetching(true);
+    authAxios
+      .get(`/books/${userId}/${type}`)
       .then((res) => {
-        console.log("getbooks ", res.data);
-        setBooks([...res.data.books]);
+        console.log(res.data);
+        setState({
+          booksType: type,
+          books: res.data.books,
+          filteredBooks: res.data.books,
+        });
+        setFetching(false);
       })
       .catch((e) => console.log(e));
-  }, [userId, booksType]);
+  };
 
   const handleClick = (e) => {
     const type = e.target.id;
-    setBooksType(type);
+    fetchData(type);
   };
 
   const getWeek = (date) => {
@@ -47,29 +81,44 @@ const BooksDisplay = () => {
     switch (period) {
       case "Last week":
         let lastWeek = getWeek(currDate) - 1;
-        setFilteredData([
-          books.filter(({ date }) => getWeek(new Date(date)) === lastWeek),
-        ]);
+        setState({
+          ...state,
+          filteredBooks: [
+            ...state.books.filter(
+              ({ date }) => getWeek(new Date(date)) === lastWeek
+            ),
+          ],
+        });
         break;
 
       case "Last month":
         let lastMonth = currDate.getMonth() - 1;
-        setFilteredData([
-          books.filter(({ date }) => new Date(date).getMonth() === lastMonth),
-        ]);
+        setState({
+          ...state,
+          filteredBooks: [
+            ...state.books.filter(
+              ({ date }) => new Date(date).getMonth() === lastMonth
+            ),
+          ],
+        });
         break;
 
       case "Last year":
         let lastYear = currDate.getFullYear() - 1;
-        setFilteredData([
-          books.filter(({ date }) => new Date(date).getFullYear() === lastYear),
-        ]);
+        setState({
+          ...state,
+          filteredBooks: [
+            ...state.books.filter(
+              ({ date }) => new Date(date).getFullYear() === lastYear
+            ),
+          ],
+        });
         break;
       case "Custom dates":
         toggleSelectCustomDates(!selectCustomDates);
         break;
       default:
-        setFilteredData([...books]);
+        setState({ ...state, filteredBooks: [...state.books] });
         break;
     }
   };
@@ -110,13 +159,18 @@ const BooksDisplay = () => {
 
         // reached here, all good
         console.log("Reached here, all good");
-        setFilteredData([
-          books.filter(
-            ({ date }) =>
-              new Date(customDate.startDate) >= new Date(date) &&
-              new Date(date) <= new Date(customDate.endDate)
-          ),
-        ]);
+        setFetching(true);
+        setTimeout(() => setFetching(false), 200);
+        setState({
+          ...state,
+          filteredBooks: [
+            ...state.books.filter(
+              ({ date }) =>
+                new Date(customDate.startDate) >= new Date(date) &&
+                new Date(date) <= new Date(customDate.endDate)
+            ),
+          ],
+        });
         return;
       } else {
         setAlert({
@@ -144,98 +198,149 @@ const BooksDisplay = () => {
       {/* <HorizontalLine color="lightGray" /> */}
       <div className="d-flex justify-content-center types-div">
         <p
+          id="allBooks"
+          className={`${state.booksType === "allBooks" && "p-active"} mr-5`}
+          onClick={handleClick}
+        >
+          My Books
+        </p>
+        <p
           id="purchasedBooks"
-          className={`${booksType === "purchasedBooks" && "p-active"} mr-5`}
+          className={`${
+            state.booksType === "purchasedBooks" && "p-active"
+          } mr-5`}
           onClick={handleClick}
         >
           Purchased
         </p>
         <p
           id="soldBooks"
-          className={`${booksType === "soldBooks" && "p-active"}`}
+          className={`${state.booksType === "soldBooks" && "p-active"}`}
           onClick={handleClick}
         >
           Sold
         </p>
         <p
           id="currentlySelling"
-          className={`${booksType === "currentlySelling" && "p-active"} ml-5`}
+          className={`${
+            state.booksType === "currentlySelling" && "p-active"
+          } ml-5`}
           onClick={handleClick}
         >
-          Selling
+          On Sale
         </p>
       </div>
-      {!selectCustomDates ? (
-        <div className="d-flex align-items-center mt-4 mb-4">
-          <p className="mr-2">Filter based on time period </p>
-          <select className="select-css" onChange={handleTimePeriodSelect}>
-            <option>Select Time Period</option>
-            <option>Last week</option>
-            <option>Last month</option>
-            <option>Last year</option>
-            <option>Custom dates</option>
-          </select>
-        </div>
-      ) : (
-        <div className="d-flex flex-column align-items-center mt-4 mb-4">
-          <div className="d-flex align-items-center">
-            <div className="d-flex align-items-center m-3">
-              <p>Select start date: </p>
-              <DatePicker
-                selected={
-                  customDate && customDate.startDate
-                    ? customDate.startDate
-                    : currDate
-                }
-                maxDate={currDate}
-                onChange={(date) => handleDateChange(date, "start")}
-              />
-            </div>
-            <div className="d-flex align-items-center m-3">
-              <p>Select end date: </p>
-              <DatePicker
-                selected={
-                  customDate && customDate.endDate
-                    ? customDate.endDate
-                    : currDate
-                }
-                maxDate={currDate}
-                onChange={(date) => handleDateChange(date, "end")}
-              />
-            </div>
-          </div>
-
-          <div className="d-flex align-items-center">
-            <CustomButton
-              style={{ marginRight: 10 }}
-              type="submit"
-              onClick={handleCustomDateButtonClick}
-            >
-              Apply
-            </CustomButton>
-            <CustomButton
-              onClick={() => toggleSelectCustomDates(!selectCustomDates)}
-            >
-              Cancel
-            </CustomButton>
-          </div>
-        </div>
-      )}
-
-      {/* List book components */}
-      <div className="d-flex flex-column align-center mt-4">
-        {filteredData &&
-          (filteredData.length > 0 ? (
-            filteredData.map(({ book, date }, i) => (
-              <div key={i}>
-                <ProfileBook data={{ book, date, type: booksType }} />
-                <HorizontalLine color="lightgrey" />
+      {(() => {
+        switch (true) {
+          case state.booksType === "allBooks":
+            return;
+          case !selectCustomDates:
+            return (
+              <div className="d-flex align-items-center mt-4 mb-4">
+                <p className="mr-2">Filter based on time period </p>
+                <select
+                  className="select-css"
+                  onChange={handleTimePeriodSelect}
+                >
+                  <option>Select Time Period</option>
+                  <option>Last week</option>
+                  <option>Last month</option>
+                  <option>Last year</option>
+                  <option>Custom dates</option>
+                </select>
               </div>
-            ))
-          ) : (
-            <div>User has no {booksType} books</div>
-          ))}
-      </div>
+            );
+          case selectCustomDates:
+            return (
+              <div className="custom-dates-select">
+                <div className="dates-div">
+                  <div className="select-date">
+                    <p>Select start date: </p>
+                    <DatePicker
+                      selected={
+                        customDate && customDate.startDate
+                          ? customDate.startDate
+                          : currDate
+                      }
+                      maxDate={currDate}
+                      onChange={(date) => handleDateChange(date, "start")}
+                    />
+                  </div>
+                  <div className="select-date">
+                    <p>Select end date: </p>
+                    <DatePicker
+                      selected={
+                        customDate && customDate.endDate
+                          ? customDate.endDate
+                          : currDate
+                      }
+                      maxDate={currDate}
+                      onChange={(date) => handleDateChange(date, "end")}
+                    />
+                  </div>
+                </div>
+
+                <div className="btn-div">
+                  <CustomButton
+                    style={{ marginRight: 10 }}
+                    type="submit"
+                    onClick={handleCustomDateButtonClick}
+                  >
+                    Apply
+                  </CustomButton>
+                  <CustomButton
+                    onClick={() => toggleSelectCustomDates(!selectCustomDates)}
+                  >
+                    Cancel
+                  </CustomButton>
+                </div>
+              </div>
+            );
+          default:
+            return null;
+        }
+      })()}
+      {/* List book components */}
+      {!fetching ? (
+        (() => {
+          switch (state.booksType) {
+            case "allBooks":
+              return (
+                <div className="d-flex flex-column align-center mt-4">
+                  {state.filteredBooks && state.filteredBooks.length > 0 ? (
+                    state.filteredBooks.map((book, i) => (
+                      <div key={i}>
+                        <ProfileBook data={{ book, type: state.booksType }} />
+                        <HorizontalLine color="lightgrey" />
+                      </div>
+                    ))
+                  ) : (
+                    <div>User has no {state.booksType} books</div>
+                  )}
+                </div>
+              );
+            default:
+              return (
+                <div className="d-flex flex-column align-center mt-4">
+                  {state.filteredBooks && state.filteredBooks.length > 0 ? (
+                    state.filteredBooks.map(({ _id, book, date }) => (
+                      <div key={_id}>
+                        <ProfileBook
+                          data={{ book, date, type: state.booksType }}
+                        />
+                        <HorizontalLine color="lightgrey" />
+                      </div>
+                    ))
+                  ) : (
+                    <div>User has no {hm[state.booksType]}</div>
+                  )}
+                </div>
+              );
+          }
+        })()
+      ) : (
+        <Spinner />
+      )}
     </div>
   );
 };

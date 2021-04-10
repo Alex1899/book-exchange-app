@@ -1,15 +1,24 @@
-
-.add-review-div {
+.all-reviews {
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    padding: 10px;
-    border-radius: 10px;
     border: 1px solid lightgray;
-    box-shadow: 0 0 3px 1px #888;
-    margin-top: 15px;
+    padding: 10;
+    background-color: white;
+    margin-top: 30px;
+    width: 500px;
 
-    &:hover{
-        opacity: 0.8;
-        cursor: pointer;
+    .user-reviews-list{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+
+    @media only screen and (max-width: 600px){
+        width: 100vw;
+        border: none;
+        padding-bottom: 20px;
     }
 }
+

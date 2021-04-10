@@ -1,6 +1,11 @@
 const express_jwt = require("express-jwt");
 const jwt = require("jsonwebtoken");
 const jwtDecode = require("jwt-decode");
+const csrf = require("csurf");
+
+module.exports.csrfProtection = csrf({
+  cookie: true,
+});
 
 module.exports.checkjwt = express_jwt({
   secret: process.env.JWT_TOKEN,

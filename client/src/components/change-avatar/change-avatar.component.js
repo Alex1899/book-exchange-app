@@ -2,17 +2,18 @@ import React, { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import UploadedPic from "../uploaded-book-photo/uploaded-photo.component";
 import "./change-avatar.styles.scss";
-import axios from "axios";
+import { useAxios} from "../../contexts/fetch.context"
 import CustomButton from "../custom-button/custom-button.component";
 import Spinner from "../spinner/spinner.component";
 
 const ChangeAvatar = ({ userId, show, handleClose, dispatch }) => {
   const [photo, setPhoto] = useState(null);
   const [startUpload, setStartUpload] = useState(false);
+  const { authAxios } = useAxios();
 
   const handlePhotoUpload = () => {
     setStartUpload(true);
-    axios
+    authAxios
       .post("/users/change/avatar", {
         userId,
         avatar: photo,
@@ -25,11 +26,11 @@ const ChangeAvatar = ({ userId, show, handleClose, dispatch }) => {
   };
 
   const handleRemovePhoto = () => {
-    axios
+    authAxios
       .post("/users/delete/avatar", {
         userId,
       })
-      .then((res) => console.log(res.data))
+      .then((res) => dispatch(null))
       .catch((e) => console.log(e));
   };
 

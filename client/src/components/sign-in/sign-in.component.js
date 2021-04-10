@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import FormInput from "../form-input/form-input.component";
 import CustomButton from "../custom-button/custom-button.component";
-import { useStateValue } from "../../contexts/state.provider";
-import { ACTION } from "../../reducer/action-types/action-types";
-import axios from "axios";
+import { useStateValue } from "../../contexts/auth.context";
+import {useAxios} from "../../contexts/fetch.context"
 import AlertDialog from "../alert-dialog/alert-dialog.component";
 import { GoogleLogin } from "react-google-login";
 import "./sign-in.styles.scss";
+import { handleErrors } from "../../utils/utils";
 
 const SignIn = () => {
-  const { dispatch } = useStateValue();
+  const authContext = useStateValue();
+  const { authAxios } = useAxios();
   const [alert, setAlert] = useState({ show: false, text: "" });
   const [form, setForm] = useState({
     email: "",
@@ -19,25 +20,13 @@ const SignIn = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    axios
+    authAxios
       .post("/users/login", form)
       .then((res) => {
         console.log("log in", res );
-        dispatch({ type: ACTION.LOGIN_USER, payload: res.data.userInfo });
+        authContext.setAuthState(res.data)
       })
-      .catch((e) => {
-        if (e.response.data) {
-          Object.values(e.response.data.errors).every((msg) => {
-            if (msg.length > 0) {
-              setAlert({ show: true, text: msg });
-              return false;
-            }
-            return true;
-          });
-        } else {
-          console.log(e);
-        }
-      });
+      .catch((e) => handleErrors(e, (text)=> setAlert({show: true, text})));
   };
 
   const handleGoogleLogin = async (googleData) => {
@@ -45,11 +34,12 @@ const SignIn = () => {
       setAlert({show: true, text:"Cookies are disabled in this environment \n\nYou can not sign in with Google :("})
       return
     }
-    const res = await axios.post("/users/auth/google", {
+    const res = await authAxios.post("/users/auth/google", {
       token: googleData.tokenId,
     });
     const data = await res.data;
-    dispatch({ type: ACTION.LOGIN_USER, payload: data.userInfo });
+    console.log(data)
+    authContext.setAuthState(data)
     // store returned user somehow
   };
 

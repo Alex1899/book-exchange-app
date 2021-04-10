@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import FormInput from "../form-input/form-input.component";
 import CustomButton from "../custom-button/custom-button.component";
 import AlertDialog from "../alert-dialog/alert-dialog.component";
-import axios from "axios";
-
+import {useAxios} from "../../contexts/fetch.context"
 import Spinner from "../spinner/spinner.component";
+import "./book-search-form.styles.scss"
 
 const BookSearchForm = ({ setData }) => {
   const [showSpinner, setShowSpinner] = useState(false);
   const [alert, setAlert] = useState({ show: false, text: "" });
+  const { authAxios } = useAxios();
   const [form, setForm] = useState({
     author: "",
     title: "",
@@ -27,7 +28,7 @@ const BookSearchForm = ({ setData }) => {
     }
 
     setShowSpinner(true);
-    axios
+    authAxios
       .post("/books/search", form)
       .then((res) => {
         setShowSpinner(false);
@@ -60,7 +61,7 @@ const BookSearchForm = ({ setData }) => {
       {showSpinner ? (
         <Spinner />
       ) : (
-        <div className="d-flex ml-5">
+        <div className="d-flex">
           {alert.show && (
             <AlertDialog
               show={alert.show}
@@ -70,7 +71,7 @@ const BookSearchForm = ({ setData }) => {
           )}
           <div className="d-flex flex-column">
             <span>Enter details of the book below</span>
-            <form className="list-form" onSubmit={handleSubmit}>
+            <form className="search-form" onSubmit={handleSubmit}>
               <FormInput
                 type="text"
                 name="title"

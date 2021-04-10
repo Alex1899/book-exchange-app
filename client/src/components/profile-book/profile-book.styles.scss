@@ -1,10 +1,52 @@
+.profile-book-div {
+  display: flex;
+  align-items: center;
 
-
-.book-info-div > p {
+  .book-info-div > p {
     margin: 0;
-}
+  }
 
-.book-title:hover, .book-image:hover{
+  .book-image {
+    width: 250px;
+
+    .book-photo {
+      width: 100%;
+    }
+  }
+  .book-title:hover,
+  .book-image:hover {
     cursor: pointer;
     opacity: 0.6;
+  }
+
+  .remove-book {
+    margin-left: 100px;
+    font-weight: bold;
+
+    &:hover {
+      cursor: pointer;
+      opacity: 0.7;
+    }
+  }
+
+  @media only screen and (max-width: 600px) {
+    flex-direction: column;
+
+    .book-image {
+      padding-bottom: 20px;
+    }
+
+    .book-info-div {
+      align-items: center;
+
+      .book-title {
+        text-align: center;
+      }
+    }
+
+    .remove-book {
+      margin-left: 0;
+      margin-top: 30px;
+    }
+  }
 }

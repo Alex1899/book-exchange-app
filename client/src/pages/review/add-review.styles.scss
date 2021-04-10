@@ -1,5 +1,22 @@
-.review-div{
+.review-div {
+  display: flex;
+  flex-direction: column;
+  margin-top: 50px;
+
+  .book-image-title {
     display: flex;
-    flex-direction: column;
-    margin-top: 50px;
+    align-items: center;
+
+    .review-book-image {
+      width: 200px;
+    }
+  }
+
+  @media screen and (max-width: 600px) {
+    width: 100vw;
+    padding: 20px;
+    button{
+        margin: auto;
+    }
+  }
 }

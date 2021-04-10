@@ -3,16 +3,16 @@ import FormInput from "../form-input/form-input.component";
 import CustomButton from "../custom-button/custom-button.component";
 import * as EmailValidator from "email-validator";
 import AlertDialog from "../alert-dialog/alert-dialog.component";
-import axios from "axios";
-import { useStateValue } from "../../contexts/state.provider";
-import { ACTION } from "../../reducer/action-types/action-types";
+import { useAxios} from "../../contexts/fetch.context"
 import "./sign-up.styles.scss";
 import { useHistory } from "react-router";
+import { handleErrors } from "../../utils/utils";
+
 
 const SignUp = () => {
-  const { dispatch } = useStateValue();
   const [alert, setAlert] = useState({ show: false, text: "" });
   const history = useHistory();
+  const { authAxios } = useAxios();
   const [form, setForm] = useState({
     fullname: "",
     username: "",
@@ -36,26 +36,13 @@ const SignUp = () => {
       return;
     }
 
-    axios
+    authAxios
       .post("/users/register", form)
       .then((res) => {
         console.log(res);
         history.push("/send-verification-link", { email });
-        // dispatch({ type: ACTION.LOGIN_USER, payload: res.data });
       })
-      .catch((e) => {
-        if (e.response.data) {
-          Object.values(e.response.data.errors).every((msg) => {
-            if (msg.length > 0) {
-              setAlert({ show: true, text: msg });
-              return false;
-            }
-            return true;
-          });
-        } else {
-          console.log(e);
-        }
-      });
+      .catch((e) => handleErrors(e, (text)=> setAlert({show: true, text})));
   };
 
   const handleChange = (event) => {

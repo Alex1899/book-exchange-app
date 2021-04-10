@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { checkjwt} = require("../controllers/utils")
+const { checkjwt, csrfProtection} = require("../controllers/utils")
 const User = require("../model/userSchema");
 const userController = require("../controllers/userController");
 
@@ -11,8 +11,9 @@ router.post("/login", userController.loginUser);
 router.post("/auth/google", userController.logInWithGoogle)
 
 router.use(checkjwt)
+router.use(csrfProtection)
 
-router.post("/avatar", checkjwt, userController.updateUserAvatar);
+router.post("/avatar", userController.updateUserAvatar);
 router.post("/change/avatar",  userController.updateUserAvatar);
 router.get("/:id", userController.getUserById);
 router.get("/:id/avatar", userController.getUserAvatar);

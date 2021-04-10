@@ -5,9 +5,10 @@ import "./list-book.styles.scss";
 
 const ListBook = () => {
   return (
-    <div className="d-flex flex-column">
+    <div className="list-book-div">
       <Jumbotron
         fluid
+        className="jumbotron-div"
         style={{
           height: "48vh",
           textAlign: "center",
@@ -16,13 +17,11 @@ const ListBook = () => {
         }}
       >
         <Container className="d-flex justify-content-start">
-          <h1 className="title">List a book for sale</h1>
+          <h1 className="title">List a book</h1>
         </Container>
       </Jumbotron>
 
-      <div className="list-book">
-        <BookSubmitForm />
-      </div>
+      <BookSubmitForm />
     </div>
   );
 };

@@ -1,21 +1,23 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import "react-datepicker/dist/react-datepicker.css"
+import "react-datepicker/dist/react-datepicker.css";
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
-import { initialState, reducer } from "./reducer/reducer";
-import StateProvider from "./contexts/state.provider";
+import { AuthProvider } from "./contexts/auth.context";
+import { FetchProvider } from "./contexts/fetch.context";
 
 ReactDOM.render(
   <React.StrictMode>
-    <StateProvider reducer={reducer} initialState={initialState}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </StateProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <FetchProvider>
+          <App />
+        </FetchProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById("root")
 );

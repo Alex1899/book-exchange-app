@@ -1,14 +1,16 @@
-import axios from "axios";
+import { useAxios} from "../../contexts/fetch.context"
 import React, { useState } from "react";
 import CustomButton from "../../components/custom-button/custom-button.component";
 
 const SendVerificationLink = ({ email }) => {
   const [sent, setSent] = useState(false);
+  const { authAxios } = useAxios();
+
 
 
   const resendVerifyLink = async () => {
     setSent(!sent);
-    const res = await axios.post("/users/resend/verification-link", {
+    const res = await authAxios.post("/users/resend/verification-link", {
       email,
     });
     console.log(res)

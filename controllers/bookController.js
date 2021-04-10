@@ -2,7 +2,7 @@ const { cloudinary } = require("../utils/cloudinary");
 const Book = require("../model/bookSchema");
 const User = require("../model/userSchema");
 const { sendMail } = require("../emailer/emailer");
-const createError = require("http-errors")
+const createError = require("http-errors");
 
 module.exports.addBookToDB = async (req, res, next) => {
   let data = req.body;
@@ -38,6 +38,7 @@ module.exports.addBookToDB = async (req, res, next) => {
     res.send({ bookId: savedBook._id });
   } catch (e) {
     console.log(e);
+    res.status(400).send({ errors: { msg: e.message } });
   }
 };
 
@@ -184,8 +185,8 @@ module.exports.getBookById = async (req, res, next) => {
 
   const book = await Book.findOne({ _id: id });
 
-  if (!book){
-  console.log(createError(404, "Book not found"))
+  if (!book) {
+    console.log(createError(404, "Book not found"));
     return res
       .status(404)
       .send({ errors: { msg: "Book not found with these details" } });
@@ -197,7 +198,7 @@ module.exports.getBookById = async (req, res, next) => {
 module.exports.getBookRequester = async (req, res, next) => {
   const { id } = req.params;
 
-  const user = await User.findOne({ "requestedBooks.book": id });
+  const user = await User.findOne({ requestedBooks: { $elemMatch: {book: id } } });
 
   if (!user) {
     console.log(`Book ${id} has not been requested by any user`);
@@ -354,7 +355,66 @@ module.exports.addReview = async (req, res, next) => {
 
 module.exports.getUsersBookByType = async (req, res, next) => {
   const { id, type } = req.params;
-  const user = await User.findOne({_id: id})
-  const books = user[type]
-  res.send({books})
+
+  if (!id) return res.status(400).send({ errors: { msg: "UserId is null" } });
+
+  const user = await User.findOne({ _id: id });
+  if (!user)
+    return res
+      .status(400)
+      .send({ errors: { msg: "User not found with this id" } });
+
+  let books;
+  if (type === "allBooks") {
+    books = await Book.find({ ownerId: id });
+  } else {
+    await user
+      .populate({
+        path: type,
+        populate: {
+          path: "book",
+        },
+      })
+      .execPopulate();
+
+    books = user[type];
+    console.log(books)
+  }
+
+  res.send({ books });
+};
+
+module.exports.cancelSelling = async (req, res, next) => {
+  const { bookId, userId } = req.body;
+  try {
+    await User.findOneAndUpdate(
+      { _id: userId },
+      { $pull: { currentlySelling: { book: bookId } } }
+    );
+
+    const book = await Book.findOneAndUpdate(
+      { _id: bookId },
+      { status: "sold" },
+      { new: true }
+    );
+    res.send({ status: book.status });
+  } catch (e) {
+    res.send({ errors: { msg: e.message } });
+  }
+};
+
+module.exports.deleteBook = async (req, res, next) => {
+  const { bookId, userId } = req.body;
+  try {
+    const book = await Book.findOne({ _id: bookId });
+    const user = await User.findOne({ _id: userId });
+    if (book.ownerId.toString() !== user._id.toString()) {
+      return res
+        .status(400)
+        .send({ errors: { msg: "You can not delete this book" } });
+    }
+    await book.deleteOne();
+  } catch (e) {
+    res.send({ errors: { msg: e.message } });
+  }
 };

@@ -5,17 +5,17 @@ import CustomButton from "../custom-button/custom-button.component";
 import "./book-submit-form.styles.scss";
 import UploadedPic from "../uploaded-book-photo/uploaded-photo.component";
 import AlertDialog from "../alert-dialog/alert-dialog.component";
-import axios from "axios";
-import { useStateValue } from "../../contexts/state.provider";
+import { useAxios } from "../../contexts/fetch.context";
+import { useStateValue } from "../../contexts/auth.context";
 import Spinner from "../spinner/spinner.component";
 import DatePicker from "react-datepicker";
+import { handleErrors } from "../../utils/utils";
 
 const BookSubmitForm = () => {
-  const {
-    state: { currentUser },
-  } = useStateValue();
+  const { userInfo } = useStateValue();
   const [showSpinner, setShowSpinner] = useState(false);
   const [alert, setAlert] = useState({ show: false, text: "" });
+  const { authAxios } = useAxios();
   const [form, setForm] = useState({
     author: "",
     title: "",
@@ -59,11 +59,11 @@ const BookSubmitForm = () => {
       return;
     }
     setShowSpinner(true);
-    axios
+    authAxios
       .post("/books/list", {
         ...form,
         publicationDate: publicationDate,
-        ownerId: currentUser.userId,
+        ownerId: userInfo.userId,
       })
       .then((res) => {
         console.log("Res", res.data);
@@ -76,12 +76,7 @@ const BookSubmitForm = () => {
       })
       .catch((e) => {
         setShowSpinner(false);
-
-        setAlert({
-          show: !alert.show,
-          text:
-            "Oops! There was an error during upload :( Please, try again later",
-        });
+        handleErrors(e, (text) => setAlert({ show: true, text }));
       });
 
     setForm({
@@ -112,7 +107,7 @@ const BookSubmitForm = () => {
       {showSpinner ? (
         <Spinner />
       ) : (
-        <div className="d-flex">
+        <div className="submit-div">
           {alert.show && (
             <AlertDialog
               show={alert.show}
@@ -124,15 +119,15 @@ const BookSubmitForm = () => {
             photo={form.photo}
             onChange={(pic) => setForm({ ...form, photo: pic })}
           />
-          <div className="d-flex flex-column ml-3">
+          <div className="submit-book-div">
             <span>Enter details of the book below</span>
-            <Form className="list-form" onSubmit={handleSubmit}>
+            <Form className="submit-book-form" onSubmit={handleSubmit}>
               <FormInput
                 type="text"
                 name="title"
                 value={title}
                 onChange={onChange}
-                label="Title"
+                label="Title *"
                 required
               ></FormInput>
               <FormInput
@@ -140,7 +135,7 @@ const BookSubmitForm = () => {
                 name="author"
                 value={author}
                 onChange={onChange}
-                label="Author"
+                label="Author *"
                 required
               ></FormInput>
 
@@ -149,7 +144,7 @@ const BookSubmitForm = () => {
                 name="category"
                 value={category}
                 onChange={onChange}
-                label="Category"
+                label="Category *"
                 required
               ></FormInput>
               <FormInput
@@ -157,7 +152,7 @@ const BookSubmitForm = () => {
                 name="keyword"
                 value={keyword}
                 onChange={onChange}
-                label="Keyword"
+                label="Keyword *"
                 required
               ></FormInput>
               <FormInput
@@ -180,7 +175,7 @@ const BookSubmitForm = () => {
                 name="language"
                 value={language}
                 onChange={onChange}
-                label="Language"
+                label="Language *"
                 required
               ></FormInput>
               <FormInput
@@ -204,8 +199,8 @@ const BookSubmitForm = () => {
               </div>
 
               <div className="select d-flex flex-column">
-                <label>Condition</label>
-                <select className="select-css" onChange={handleConditionSelect}>
+                <label>Condition *</label>
+                <select required className="select-css" onChange={handleConditionSelect}>
                   <option>Select Condition</option>
                   <option>Fine/Like New (F)</option>
                   <option>Near Fine (NF)</option>
@@ -228,7 +223,9 @@ const BookSubmitForm = () => {
               <div className="group">
                 <label>Description</label>
                 <textarea
-                  onChange={(e)=> setForm({...form, description: e.target.value})}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
                   className="b-textarea"
                   spellCheck={true}
                   rows={6}

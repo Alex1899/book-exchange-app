@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-
+import { useAxios} from "../../contexts/fetch.context"
 import Spinner from "../../components/spinner/spinner.component";
 import AlertDialog from "../../components/alert-dialog/alert-dialog.component";
 import { useHistory } from "react-router";
@@ -8,12 +7,14 @@ import { useHistory } from "react-router";
 const VerificationDone = ({ params }) => {
   const [alert, setAlert] = useState({ show: false, text: "" });
   const history = useHistory();
+  const { authAxios } = useAxios();
+
   const [data, setData] = useState(null);
   const { id, token } = params;
 
   useEffect(() => {
     if (!data) {
-      axios
+      authAxios
         .post("/users/verify-email", {
           id,
           token,
@@ -23,7 +24,7 @@ const VerificationDone = ({ params }) => {
         })
         .catch((e) => console.log(e));
     }
-  }, [data, id, token]);
+  }, [data, authAxios, id, token]);
 
   const handleClose = () => {
     setAlert({ ...alert, show: false });

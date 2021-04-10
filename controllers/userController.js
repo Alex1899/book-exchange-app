@@ -145,8 +145,7 @@ module.exports.loginUser = async function (req, res, next) {
   const expiresAt = decodedToken.exp;
 
   res.cookie("jwt", jwt_token, { httpOnly: true });
-
-  res.send({ token: jwt_token, expiresAt, userInfo });
+  res.send({ expiresAt, userInfo });
 };
 
 module.exports.logInWithGoogle = async (req, res, next) => {
@@ -194,7 +193,7 @@ module.exports.logInWithGoogle = async (req, res, next) => {
   const expiresAt = decodedToken.exp;
 
   res.cookie("jwt", jwt_token, { httpOnly: true });
-  res.send({ token: jwt_token, expiresAt, userInfo });
+  res.send({ expiresAt, userInfo });
 };
 
 module.exports.updateUserAvatar = async function (req, res, next) {

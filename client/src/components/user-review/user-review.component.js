@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useAxios} from "../../contexts/fetch.context"
 import Rating from "@material-ui/lab/Rating";
-
+import "./user-review.styles.scss"
 const UserReview = ({ review }) => {
   const { userId, headline, rating, comment, date } = review;
   const [user, setUser] = useState(null);
+  const { authAxios } = useAxios();
 
   useEffect(() => {
     if (!user) {
-      axios
-        .get(`http://localhost:42069/users/${userId}`)
+      authAxios
+        .get(`/users/${userId}`)
         .then((res) => setUser(res.data.user))
         .catch((e) => console.log(e));
     }
-  }, [userId, user]);
+  }, [userId, authAxios, user]);
 
   return (
-    <div className="d-flex flex-column mb-4">
+    <div className="user-review-container">
       <div className="d-flex align-items-center">
         <img
           className="rounded-circle mr-2"

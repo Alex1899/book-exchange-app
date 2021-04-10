@@ -1,14 +1,14 @@
 import React from "react";
 import Header from "./components/header/header.component";
 import Footer from "./components/footer/footer.component";
-import { Switch, Route, Redirect, useHistory } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import HomePage from "./pages/home/home.component";
 import ListBook from "./pages/list-books/list-book.component";
 import SearchBook from "./pages/search/search.component";
 import ProfilePage from "./pages/profile/profile.component";
-import { useStateValue } from "./contexts/state.provider";
+import { useStateValue } from "./contexts/auth.context";
 import AddReview from "./pages/review/add-review.component";
-import "./App.css";
+import "./App.scss";
 import SignInAndSignUpPage from "./pages/sign-in-and-sign-up/sign-in-and-sign-up.component";
 import BookPage from "./pages/book-page/book-page.component";
 import SendVerificationLink from "./pages/send-verification-link/send-verification-link.component";
@@ -16,10 +16,7 @@ import VerificationDone from "./pages/verification-done/verification-done.compon
 import NotFoundPage from "./pages/404/not-found.component";
 
 const App = () => {
-  const {
-    state: { currentUser },
-  } = useStateValue();
-  const history = useHistory()
+  const { userInfo, isAuthenticated } = useStateValue();
 
   return (
     <div className="App">
@@ -30,7 +27,7 @@ const App = () => {
         <Route
           path="/profile"
           render={() =>
-            currentUser ? <ProfilePage /> : <SignInAndSignUpPage />
+            isAuthenticated() ? <ProfilePage /> : <SignInAndSignUpPage />
           }
         />
         <Route path="/search" component={SearchBook} />
@@ -41,27 +38,31 @@ const App = () => {
         />
         <Route
           path="/book/:id/add-review"
-          render={({ match: { params } }) => (
-            <AddReview bookId={params.id} userId={currentUser.userId} />
-          )}
+          render={({ match: { params } }) =>
+            isAuthenticated() ? (
+              <AddReview bookId={params.id} userId={userInfo.userId} />
+            ) : (
+              <SignInAndSignUpPage />
+            )
+          }
         />
         <Route
           path="/list-book"
           render={(props) =>
-            currentUser ? <ListBook /> : <SignInAndSignUpPage />
+            isAuthenticated() ? <ListBook /> : <SignInAndSignUpPage />
           }
         />
 
         <Route
           path="/signin"
           render={(props) =>
-            currentUser ? props.history.goBack() : <SignInAndSignUpPage />
+            isAuthenticated() ? props.history.goBack() : <SignInAndSignUpPage />
           }
         />
         <Route
           path="/send-verification-link"
           render={({ location: { state } }) =>
-            !currentUser ? (
+            !isAuthenticated() ? (
               <SendVerificationLink email={state.email ? state.email : null} />
             ) : (
               <HomePage />
@@ -69,8 +70,13 @@ const App = () => {
           }
         />
 
-        <Route path="/verify-email/:id/:token" render={({match: {params}}) => <VerificationDone params={params}/>}/>
-        <Route path="*" component={NotFoundPage}/>
+        <Route
+          path="/verify-email/:id/:token"
+          render={({ match: { params } }) => (
+            <VerificationDone params={params} />
+          )}
+        />
+        <Route path="*" component={NotFoundPage} />
       </Switch>
       <Footer />
     </div>

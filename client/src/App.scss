@@ -1,5 +1,4 @@
-
-html{
+html {
   height: 100%;
 }
 
@@ -8,14 +7,16 @@ body {
   flex-direction: column;
   min-height: 100vh;
   font-family: "Open Sans Condensed";
+  font-size: 17px;
   padding: 10px 0;
-  background-color: rgb(247, 247, 247);
-
+  background-color: #f8f9fa;
 }
 
 p {
   margin: 0;
 }
+
+
 
 * {
   box-sizing: border-box;

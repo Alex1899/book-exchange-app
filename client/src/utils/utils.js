@@ -16,7 +16,14 @@ export const handleErrors = (e, handleAlert) => {
       handleAlert(msg ? msg : "Requested Page Not Found");
       break;
     case 401:
-      handleAlert(msg ? msg : "You are not authorized to access this resource");
+      handleAlert(
+        msg
+          ? msg
+          : "Your session either expired or you are not signed in. Please, sign in to your account again"
+      );
+      break;
+    case 403:
+      handleAlert("You are not authorized");
       break;
     case 500:
       handleAlert(
@@ -26,7 +33,7 @@ export const handleErrors = (e, handleAlert) => {
       );
       break;
     default:
-      handleAlert("There was an error. Please, try again later");
+      handleAlert(msg ? msg : "There was an error. Please, try again later");
       break;
   }
 };

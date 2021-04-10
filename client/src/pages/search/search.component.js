@@ -3,6 +3,7 @@ import BookSearchForm from "../../components/book-search-form/book-search-form.c
 import ProfileBook from "../../components/profile-book/profile-book.component";
 import HorizontalLine from "../../components/horizontal-line/horizontal-line.component";
 import { Jumbotron, Container } from "react-bootstrap";
+import "./search.styles.scss"
 
 const SearchBook = () => {
   const [data, setData] = useState(null);
@@ -24,12 +25,12 @@ const SearchBook = () => {
         </Container>
       </Jumbotron>
 
-      <div className="search-div d-flex mt-4 justify-content-around">
+      <div className="search-div">
         {/* Search Form */}
         <BookSearchForm setData={(data) => setData(data)} />
 
         {/* Search Results */}
-        <div className="d-flex flex-column w-50 " style={{ padding: 30, backgroundColor: "white"}}>
+        <div className="search-results">
           {!data ? (
             <p className="text-center">Search results will appear here</p>
           ) : data.length > 0 ? (
