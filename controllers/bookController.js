@@ -381,7 +381,7 @@ module.exports.getUsersBookByType = async (req, res, next) => {
     console.log(books)
   }
 
-  res.send({ books });
+  res.send({ books: books.reverse() });
 };
 
 module.exports.cancelSelling = async (req, res, next) => {

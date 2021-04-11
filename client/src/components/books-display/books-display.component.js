@@ -12,7 +12,7 @@ import CustomButton from "../custom-button/custom-button.component";
 const hm = {
   purchasedBooks: "purchased books",
   soldBooks: "sold books",
-  currentlySelling: "selling book",
+  currentlySelling: "currently selling book",
   allBooks: "books",
 };
 
@@ -29,8 +29,11 @@ const BooksDisplay = () => {
   });
   const [alert, setAlert] = useState({ show: false, text: "" });
   const [selectCustomDates, toggleSelectCustomDates] = useState(false);
-  const [customDate, setCustomDate] = useState(null);
   let currDate = new Date();
+  const [customDate, setCustomDate] = useState({
+    startDate: currDate,
+    endDate: currDate,
+  });
 
   useEffect(() => {
     if (!state.books) {
@@ -149,7 +152,7 @@ const BooksDisplay = () => {
           return;
         }
 
-        if (customDate.startDate > customDate.endDate) {
+        if (customDate.startDate.getDate() > customDate.endDate.getDate()) {
           setAlert({
             show: true,
             text: "End date can not come before the start date",
@@ -166,8 +169,8 @@ const BooksDisplay = () => {
           filteredBooks: [
             ...state.books.filter(
               ({ date }) =>
-                new Date(customDate.startDate) >= new Date(date) &&
-                new Date(date) <= new Date(customDate.endDate)
+                customDate.startDate.getTime() <= new Date(date).getTime() &&
+                new Date(date).getTime() <= customDate.endDate.getTime()
             ),
           ],
         });
@@ -232,8 +235,9 @@ const BooksDisplay = () => {
       </div>
       {(() => {
         switch (true) {
-          case state.booksType === "allBooks":
+          case state.booksType === "allBooks" || state.booksType === "currentlySelling":
             return;
+        
           case !selectCustomDates:
             return (
               <div className="d-flex align-items-center mt-4 mb-4">
@@ -257,11 +261,7 @@ const BooksDisplay = () => {
                   <div className="select-date">
                     <p>Select start date: </p>
                     <DatePicker
-                      selected={
-                        customDate && customDate.startDate
-                          ? customDate.startDate
-                          : currDate
-                      }
+                      selected={customDate.startDate}
                       maxDate={currDate}
                       onChange={(date) => handleDateChange(date, "start")}
                     />
@@ -269,11 +269,7 @@ const BooksDisplay = () => {
                   <div className="select-date">
                     <p>Select end date: </p>
                     <DatePicker
-                      selected={
-                        customDate && customDate.endDate
-                          ? customDate.endDate
-                          : currDate
-                      }
+                      selected={customDate.endDate}
                       maxDate={currDate}
                       onChange={(date) => handleDateChange(date, "end")}
                     />
