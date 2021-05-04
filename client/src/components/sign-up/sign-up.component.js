@@ -3,11 +3,10 @@ import FormInput from "../form-input/form-input.component";
 import CustomButton from "../custom-button/custom-button.component";
 import * as EmailValidator from "email-validator";
 import AlertDialog from "../alert-dialog/alert-dialog.component";
-import { useAxios} from "../../contexts/fetch.context"
+import { useAxios } from "../../contexts/fetch.context";
 import "./sign-up.styles.scss";
 import { useHistory } from "react-router";
 import { handleErrors } from "../../utils/utils";
-
 
 const SignUp = () => {
   const [alert, setAlert] = useState({ show: false, text: "" });
@@ -22,6 +21,16 @@ const SignUp = () => {
   });
 
   const { fullname, username, email, password, confirmPassword } = form;
+
+  const clearForm = () => {
+    setForm({
+      fullname: "",
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -40,9 +49,13 @@ const SignUp = () => {
       .post("/users/register", form)
       .then((res) => {
         console.log(res);
+        clearForm();
         history.push("/send-verification-link", { email });
       })
-      .catch((e) => handleErrors(e, (text)=> setAlert({show: true, text})));
+      .catch((e) => {
+        clearForm();
+        handleErrors(e, (text) => setAlert({ show: true, text }));
+      });
   };
 
   const handleChange = (event) => {

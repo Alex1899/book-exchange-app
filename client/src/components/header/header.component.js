@@ -57,6 +57,7 @@ const Header = () => {
             <NavDropdown
               title={`Hello, ${authContext.userInfo.username}!`}
               id="collasible-nav-dropdown"
+              className="mr-5"
             >
               <NavDropdown.Item
                 className="d-flex align-items-center"

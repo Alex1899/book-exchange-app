@@ -51,34 +51,7 @@ const BookSubmitForm = () => {
     setForm({ ...form, condition: value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!form.photo) {
-      setAlert({ show: true, text: "Photo has not been uploaded" });
-      return;
-    }
-    setShowSpinner(true);
-    authAxios
-      .post("/books/list", {
-        ...form,
-        publicationDate: publicationDate,
-        ownerId: userInfo.userId,
-      })
-      .then((res) => {
-        console.log("Res", res.data);
-
-        setShowSpinner(false);
-        setAlert({
-          show: !alert.show,
-          text: "Book uploaded successfully!",
-        });
-      })
-      .catch((e) => {
-        setShowSpinner(false);
-        handleErrors(e, (text) => setAlert({ show: true, text }));
-      });
-
+  const clearForm = () => {
     setForm({
       author: "",
       title: "",
@@ -95,6 +68,42 @@ const BookSubmitForm = () => {
       price: 0,
       photo: null,
     });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!form.photo) {
+      setAlert({ show: true, text: "Photo has not been uploaded" });
+      return;
+    }
+
+    if(!form.condition){
+      setAlert({ show: true, text: "Please select book condition" });
+      return;
+    }
+    setShowSpinner(true);
+    authAxios
+      .post("/books/list", {
+        ...form,
+        publicationDate: publicationDate,
+        ownerId: userInfo.userId,
+      })
+      .then((res) => {
+        console.log("Res", res.data);
+        clearForm();
+
+        setShowSpinner(false);
+        setAlert({
+          show: !alert.show,
+          text: "Book uploaded successfully!",
+        });
+      })
+      .catch((e) => {
+        setShowSpinner(false);
+        clearForm();
+        handleErrors(e, (text) => setAlert({ show: true, text }));
+      });
   };
 
   const onChange = (e) => {
@@ -200,7 +209,11 @@ const BookSubmitForm = () => {
 
               <div className="select d-flex flex-column">
                 <label>Condition *</label>
-                <select required className="select-css" onChange={handleConditionSelect}>
+                <select
+                  className="select-css"
+                  onChange={handleConditionSelect}
+                  required
+                >
                   <option>Select Condition</option>
                   <option>Fine/Like New (F)</option>
                   <option>Near Fine (NF)</option>
@@ -229,6 +242,7 @@ const BookSubmitForm = () => {
                   className="b-textarea"
                   spellCheck={true}
                   rows={6}
+                  required
                 ></textarea>
               </div>
 
