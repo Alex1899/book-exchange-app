@@ -21,7 +21,8 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
-app.use(express.static(path.join(__dirname, "public")));
+//app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static('./client/build'));
 
 app.use("/api/", indexRouter);
 app.use("/api/users", usersRouter);
