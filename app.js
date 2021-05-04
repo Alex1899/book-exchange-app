@@ -6,7 +6,6 @@ const logger = require("morgan");
 const cors = require("cors");
 const { checkjwt, csrfProtection } = require("./controllers/utils");
 
-const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const booksRouter = require("./routes/books");
 
@@ -24,12 +23,18 @@ app.use(cors());
 //app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static('./client/build'));
 
-app.use("/api/", indexRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/books", booksRouter);
 
 app.use(csrfProtection);
 app.get("/api/csrf-token", (req, res) => res.json({ csrfToken: req.csrfToken() }));
+
+/* GET home page. */
+router.get('/*', function(req, res, next) {
+  res.sendFile(path.resolve(__dirname, "client", "build",     
+  "index.html"));
+});
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
