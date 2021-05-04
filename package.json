@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node bin/www",
-    "build": "npm run build --prefix client",
+    "build": "cd client && npm install && npm run build && cd ..",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run client\" \"npm start\""
   },
