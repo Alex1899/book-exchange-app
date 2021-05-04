@@ -70,7 +70,7 @@ const BookSearchForm = ({ setData }) => {
             />
           )}
           <div className="d-flex flex-column">
-            <span>Enter details of the book below</span>
+            <span>Enter book details below</span>
             <form className="search-form" onSubmit={handleSubmit}>
               <FormInput
                 type="text"
