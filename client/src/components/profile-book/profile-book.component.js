@@ -1,9 +1,7 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { XCircle } from "react-bootstrap-icons";
-import { useAxios} from "../../contexts/fetch.context"
+
 import "./profile-book.styles.scss";
-import { useStateValue } from "../../contexts/auth.context";
 
 const hm = {
   purchasedBooks: "Purchased",

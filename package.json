@@ -4,8 +4,6 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "prebuild": "cd client && npm install",
-    "build": "npm run build",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run client\" \"npm start\""
   },

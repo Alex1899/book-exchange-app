@@ -25,14 +25,14 @@ const ChangeAvatar = ({ userId, show, handleClose, dispatch }) => {
       .catch((e) => console.log(e));
   };
 
-  const handleRemovePhoto = () => {
-    authAxios
-      .post("/users/delete/avatar", {
-        userId,
-      })
-      .then((res) => dispatch(null))
-      .catch((e) => console.log(e));
-  };
+  // const handleRemovePhoto = () => {
+  //   authAxios
+  //     .post("/users/delete/avatar", {
+  //       userId,
+  //     })
+  //     .then((res) => dispatch(null))
+  //     .catch((e) => console.log(e));
+  // };
 
   return (
     <Modal show={show} onHide={handleClose} animation={false}>
