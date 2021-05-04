@@ -33,6 +33,7 @@ const ChangeAvatar = ({ userId, show, handleClose, dispatch }) => {
   //     .then((res) => dispatch(null))
   //     .catch((e) => console.log(e));
   // };
+  //
 
   return (
     <Modal show={show} onHide={handleClose} animation={false}>
