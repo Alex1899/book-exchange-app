@@ -30,10 +30,10 @@ app.use(csrfProtection);
 app.get("/api/csrf-token", (req, res) => res.json({ csrfToken: req.csrfToken() }));
 
 /* GET home page. */
-router.get('/*', function(req, res, next) {
-  res.sendFile(path.resolve(__dirname, "client", "build",     
-  "index.html"));
-});
+// router.get('/*', function(req, res, next) {
+//   res.sendFile(path.resolve(__dirname, "client", "build",     
+//   "index.html"));
+// });
 
 
 // catch 404 and forward to error handler

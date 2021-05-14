@@ -25,7 +25,7 @@ const ProfilePage = () => {
   }, [authAxios, userInfo]);
 
   return (
-    <div className="d-flex flex-column">
+    <div className="d-flex flex-column mt-5">
       {alert.show && (
         <AlertDialog
           show={alert.show}

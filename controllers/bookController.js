@@ -51,8 +51,10 @@ module.exports.searchBook = async (req, res, next) => {
   }
 
   console.log("find", data);
+  let filter = {}
+  Object.keys(data).forEach(key=> filter[key] = {"$regex":  data[key], "$options": "i"})
 
-  const books = await Book.find({ ...data });
+  const books = await Book.find({...filter });
 
   if (!books)
     return res
