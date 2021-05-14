@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState , useHistory} from "react";
+import AlertDialog from "../components/alert-dialog/alert-dialog.component"
 
 const AuthContext = createContext();
 const { Provider } = AuthContext;
@@ -6,6 +7,8 @@ const { Provider } = AuthContext;
 const AuthProvider = ({ children }) => {
   const userInfo = localStorage.getItem("userInfo");
   const expiresAt = localStorage.getItem("expiresAt");
+  const [alert, setAlert] = useState({ show: false, text: "" });
+  const history = useHistory();
 
   const [authState, setAuthState] = useState({
     expiresAt,
@@ -38,7 +41,18 @@ const AuthProvider = ({ children }) => {
     if (!authState.expiresAt) {
       return false;
     }
-    return new Date().getTime() / 1000 < authState.expiresAt;
+    if (!(new Date().getTime() / 1000 < authState.expiresAt)) {
+      logout();
+      if (
+        history.location.pathname === "/list-book" ||
+        history.location.pathname === "/profile"
+      ) {
+        history.push("/");
+      }
+      setAlert({ show: true, text: "Session expired. Please login again to access list-book and profile page :)" });
+      return false;
+    }
+    return true;
   };
 
   return (
@@ -51,6 +65,13 @@ const AuthProvider = ({ children }) => {
         isAuthenticated,
       }}
     >
+       {alert.show && (
+        <AlertDialog
+          show={alert.show}
+          handleClose={() => setAlert({ ...alert, show: !alert.show })}
+          text={alert.text}
+        />
+      )}
       {children}
     </Provider>
   );
