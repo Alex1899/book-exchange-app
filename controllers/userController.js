@@ -65,7 +65,7 @@ module.exports.registerUser = async function (req, res, next) {
     res.send({ status: "Verify email sent" });
   } catch (err) {
     const errors = handleErrors(err);
-    return res.status(400).send({ errors });
+    return res.status(400).send({ errors: {msg: errors} });
   }
 };
 
