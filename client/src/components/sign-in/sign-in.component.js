@@ -30,7 +30,8 @@ const SignIn = () => {
   };
 
   const handleGoogleLogin = async (googleData) => {
-    if(googleData.error){
+    if(googleData.error && googleData.error !== "popup_closed_by_user"){
+      console.log(googleData)
       setAlert({show: true, text:"Cookies are disabled in this environment \n\nYou can not sign in with Google :("})
       return
     }
