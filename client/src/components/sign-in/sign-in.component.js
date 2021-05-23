@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import FormInput from "../form-input/form-input.component";
 import CustomButton from "../custom-button/custom-button.component";
 import { useStateValue } from "../../contexts/auth.context";
-import {useAxios} from "../../contexts/fetch.context"
+import { useAxios } from "../../contexts/fetch.context";
 import AlertDialog from "../alert-dialog/alert-dialog.component";
 import { GoogleLogin } from "react-google-login";
 import "./sign-in.styles.scss";
 import { handleErrors } from "../../utils/utils";
+import { useHistory } from "react-router";
 
 const SignIn = () => {
   const authContext = useStateValue();
@@ -16,6 +17,7 @@ const SignIn = () => {
     email: "",
     password: "",
   });
+  const history = useHistory();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -23,24 +25,30 @@ const SignIn = () => {
     authAxios
       .post("/users/login", form)
       .then((res) => {
-        console.log("log in", res );
-        authContext.setAuthState(res.data)
+        console.log("log in", res);
+        authContext.setAuthState(res.data);
+        if (history.location.pathname === "/post-verify-signin") {
+          history.push("/");
+        }
       })
-      .catch((e) => handleErrors(e, (text)=> setAlert({show: true, text})));
+      .catch((e) => handleErrors(e, (text) => setAlert({ show: true, text })));
   };
 
   const handleGoogleLogin = async (googleData) => {
-    if(googleData.error && googleData.error !== "popup_closed_by_user"){
-      console.log(googleData)
-      setAlert({show: true, text:"Cookies are disabled in this environment \n\nYou can not sign in with Google :("})
-      return
+    if (googleData.error && googleData.error !== "popup_closed_by_user") {
+      console.log(googleData);
+      setAlert({
+        show: true,
+        text: "Cookies are disabled in this environment \n\nYou can not sign in with Google :(",
+      });
+      return;
     }
     const res = await authAxios.post("/users/auth/google", {
       token: googleData.tokenId,
     });
     const data = await res.data;
-    console.log(data)
-    authContext.setAuthState(data)
+    console.log(data);
+    authContext.setAuthState(data);
     // store returned user somehow
   };
 

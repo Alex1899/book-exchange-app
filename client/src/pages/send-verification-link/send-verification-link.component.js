@@ -7,7 +7,6 @@ const SendVerificationLink = ({ email }) => {
   const { authAxios } = useAxios();
 
 
-
   const resendVerifyLink = async () => {
     setSent(!sent);
     const res = await authAxios.post("/users/resend/verification-link", {

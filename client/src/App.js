@@ -59,6 +59,9 @@ const App = () => {
             isAuthenticated() ? props.history.goBack() : <SignInAndSignUpPage />
           }
         />
+
+        <Route path="/post-verify-signin" component={SignInAndSignUpPage} />
+
         <Route
           path="/send-verification-link"
           render={({ location: { state } }) =>

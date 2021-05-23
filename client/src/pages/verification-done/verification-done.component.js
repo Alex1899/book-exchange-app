@@ -28,7 +28,7 @@ const VerificationDone = ({ params }) => {
 
   const handleClose = () => {
     setAlert({ ...alert, show: false });
-    history.push("/signin");
+    history.push("/post-verify-signin");
   };
 
   return (

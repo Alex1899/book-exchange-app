@@ -1,9 +1,7 @@
 const User = require("../model/userSchema");
-const Book = require("../model/bookSchema");
 const Token = require("../model/verifytokenSchema");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const path = require("path");
+
 const crypto = require("crypto");
 const jwtDecode = require("jwt-decode");
 const { cloudinary } = require("../utils/cloudinary");
@@ -52,6 +50,7 @@ module.exports.registerUser = async function (req, res, next) {
       email,
       token: crypto.randomBytes(16).toString("hex"),
     });
+    console.log("generated token doc =>", token);
     let verifyLink = `${req.protocol}://localhost:3000/verify-email/${user._id}/${token.token}`;
 
     let sendToken = {
@@ -65,7 +64,7 @@ module.exports.registerUser = async function (req, res, next) {
     res.send({ status: "Verify email sent" });
   } catch (err) {
     const errors = handleErrors(err);
-    return res.status(400).send({ errors: {msg: errors} });
+    return res.status(400).send({ errors: { msg: errors } });
   }
 };
 
@@ -133,6 +132,16 @@ module.exports.loginUser = async function (req, res, next) {
     return res
       .status(400)
       .send({ errors: { msg: "Incorrect password for this user" } });
+  }
+
+  if (!user.isVerified) {
+    return res
+      .status(400)
+      .send({
+        errors: {
+          msg: `Your account is not verified. Please find the verification link sent to your email at ${user.email}`,
+        },
+      });
   }
   let userInfo = {
     userId: user._id,
