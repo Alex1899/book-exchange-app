@@ -26,21 +26,36 @@ $sub-color: grey;
 
   .forms-div {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 
-    .form-div {
+    .forms-container {
       display: flex;
-      flex-direction: column;
-      width: 400px;
-      margin-left: 20px;
+      
+      .form-div {
+        display: flex;
+        flex-direction: column;
+        width: 400px;
 
-      .form-div-form {
-        width: 100%;
+        .form-div-form {
+          width: 100%;
+        }
+
+        .cust-btn {
+          display: flex;
+          justify-content: center;
+        }
       }
 
-      .cust-btn {
-        display: flex;
-        justify-content: center;
+      @media only screen and (max-width: 600px) {
+        flex-direction: column;
+        align-items: center;
+    
+        .form-div {
+          margin-right: 0 !important;
+          align-items: center;
+          width: 300px;
+        }
       }
     }
   }
@@ -53,17 +68,5 @@ $sub-color: grey;
   }
   textarea:focus {
     outline: none;
-  }
-
-  @media only screen and (max-width: 600px) {
-    flex-direction: column;
-    align-items: center;
-
-    .submit-book-div {
-      margin-top: 40px;
-      margin-left: 0;
-      align-items: center;
-      width: 300px;
-    }
   }
 }

@@ -129,133 +129,137 @@ const BookSubmitForm = () => {
             onChange={(pic) => setForm({ ...form, photo: pic })}
           />
           <div className="forms-div mt-4">
+            <span className="d-flex align-content-start">
+              Enter details of the book below
+            </span>
             {/* form part1 */}
-            <div className="form-div mr-5">
-              <span>Enter details of the book below</span>
-              <Form className="form-div-form">
-                <FormInput
-                  type="text"
-                  name="title"
-                  value={title}
-                  onChange={onChange}
-                  label="Title *"
-                  required
-                ></FormInput>
-                <FormInput
-                  type="text"
-                  name="author"
-                  value={author}
-                  onChange={onChange}
-                  label="Author *"
-                  required
-                ></FormInput>
-                <FormInput
-                  type="text"
-                  name="category"
-                  value={category}
-                  onChange={onChange}
-                  label="Category *"
-                  required
-                ></FormInput>
-                <FormInput
-                  type="text"
-                  name="keyword"
-                  value={keyword}
-                  onChange={onChange}
-                  label="Keyword *"
-                  required
-                ></FormInput>
-                <FormInput
-                  type="text"
-                  name="isbn"
-                  value={isbn}
-                  onChange={onChange}
-                  label="ISBN"
-                ></FormInput>
-                <FormInput
-                  type="number"
-                  min="0"
-                  name="printLength"
-                  value={printLength}
-                  onChange={onChange}
-                  label="Number of Pages"
-                ></FormInput>
-                <FormInput
-                  type="text"
-                  name="language"
-                  value={language}
-                  onChange={onChange}
-                  label="Language *"
-                  required
-                ></FormInput>
-              </Form>
-            </div>
-            {/* form part2 */}
-            <div className="form-div">
-              <Form className="form-div-form" onSubmit={handleSubmit}>
-                <FormInput
-                  type="text"
-                  name="publisher"
-                  value={publisher}
-                  onChange={onChange}
-                  label="Publisher"
-                ></FormInput>
-                <div className="d-flex flex-column mb-4">
-                  <label>Publication Date: </label>
-                  <DatePicker
-                    selected={publicationDate}
-                    onChange={(date) =>
-                      setForm({
-                        ...form,
-                        publicationDate: date,
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="select d-flex flex-column">
-                  <label>Condition *</label>
-                  <select
-                    className="select-css"
-                    onChange={handleConditionSelect}
+            <div className="forms-container">
+              <div className="form-div mr-5">
+                <Form className="form-div-form">
+                  <FormInput
+                    type="text"
+                    name="title"
+                    value={title}
+                    onChange={onChange}
+                    label="Title *"
                     required
-                  >
-                    <option>Select Condition</option>
-                    <option>Fine/Like New (F)</option>
-                    <option>Near Fine (NF)</option>
-                    <option>Very Good (VG)</option>
-                    <option>Good (G)</option>
-                    <option>Fair (FR)</option>
-                    <option>Poor (P)</option>
-                  </select>
-                </div>
-                <FormInput
-                  type="number"
-                  min="0"
-                  name="price"
-                  value={price}
-                  onChange={onChange}
-                  label="Price (£)"
-                  required
-                ></FormInput>
-
-                <div className="group">
-                  <label>Description</label>
-                  <textarea
-                    onChange={(e) =>
-                      setForm({ ...form, description: e.target.value })
-                    }
-                    className="b-textarea"
-                    spellCheck={true}
-                    rows={6}
+                  ></FormInput>
+                  <FormInput
+                    type="text"
+                    name="author"
+                    value={author}
+                    onChange={onChange}
+                    label="Author *"
                     required
-                  ></textarea>
-                </div>
+                  ></FormInput>
+                  <FormInput
+                    type="text"
+                    name="category"
+                    value={category}
+                    onChange={onChange}
+                    label="Category *"
+                    required
+                  ></FormInput>
+                  <FormInput
+                    type="text"
+                    name="keyword"
+                    value={keyword}
+                    onChange={onChange}
+                    label="Keyword *"
+                    required
+                  ></FormInput>
+                  <FormInput
+                    type="text"
+                    name="isbn"
+                    value={isbn}
+                    onChange={onChange}
+                    label="ISBN"
+                  ></FormInput>
+                  <FormInput
+                    type="number"
+                    min="0"
+                    name="printLength"
+                    value={printLength}
+                    onChange={onChange}
+                    label="Number of Pages"
+                  ></FormInput>
+                  <FormInput
+                    type="text"
+                    name="language"
+                    value={language}
+                    onChange={onChange}
+                    label="Language *"
+                    required
+                  ></FormInput>
+                </Form>
+              </div>
+              {/* form part2 */}
+              <div className="form-div">
+                <Form className="form-div-form" onSubmit={handleSubmit}>
+                  <FormInput
+                    type="text"
+                    name="publisher"
+                    value={publisher}
+                    onChange={onChange}
+                    label="Publisher"
+                  ></FormInput>
+                  <div className="d-flex flex-column mb-4">
+                    <label>Publication Date: </label>
+                    <DatePicker
+                      selected={publicationDate}
+                      onChange={(date) =>
+                        setForm({
+                          ...form,
+                          publicationDate: date,
+                        })
+                      }
+                    />
+                  </div>
 
-                <div className="cust-btn">
-                  <CustomButton type="submit">Submit</CustomButton>
-                </div>
-              </Form>
+                  <div className="select d-flex flex-column">
+                    <label>Condition *</label>
+                    <select
+                      className="select-css"
+                      onChange={handleConditionSelect}
+                      required
+                    >
+                      <option>Select Condition</option>
+                      <option>Fine/Like New (F)</option>
+                      <option>Near Fine (NF)</option>
+                      <option>Very Good (VG)</option>
+                      <option>Good (G)</option>
+                      <option>Fair (FR)</option>
+                      <option>Poor (P)</option>
+                    </select>
+                  </div>
+                  <FormInput
+                    type="number"
+                    min="0"
+                    name="price"
+                    value={price}
+                    onChange={onChange}
+                    label="Price (£)"
+                    required
+                  ></FormInput>
+
+                  <div className="group">
+                    <label>Description</label>
+                    <textarea
+                      onChange={(e) =>
+                        setForm({ ...form, description: e.target.value })
+                      }
+                      className="b-textarea"
+                      spellCheck={true}
+                      rows={6}
+                      required
+                    ></textarea>
+                  </div>
+
+                  <div className="cust-btn">
+                    <CustomButton type="submit">Submit</CustomButton>
+                  </div>
+                </Form>
+              </div>
             </div>
           </div>
         </div>

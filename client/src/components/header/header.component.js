@@ -55,7 +55,7 @@ const Header = () => {
         <Nav>
           {authContext.isAuthenticated() ? (
             <NavDropdown
-              title={`Hello, ${authContext.userInfo.username}!`}
+              title={`Hello, ${authContext.userInfo.username}`}
               id="collasible-nav-dropdown"
               className="mr-5"
             >

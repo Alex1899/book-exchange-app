@@ -10,7 +10,7 @@
     justify-content: center;
 
     .book-image-div {
-      width: 400px;
+      width: 200px;
       margin-right: 20px;
     }
 
@@ -70,12 +70,13 @@
   .reviews-section {
     display: flex;
     justify-content: center;
+    margin-top: 30px;
     align-items: center;
 
     .add-review-section {
       display: flex;
       flex-direction: column;
-      width: 400px;
+      width: 200px;
       margin-right: 20px;
 
       .add-review-div {
@@ -100,7 +101,10 @@
     .book-info-section {
       flex-direction: column;
 
-      .book-image-div,
+      .book-image-div{
+        width: 40vw;
+        margin: 0 auto;
+      }
       .book-page-info {
         width: 100vw;
         padding: 10px;
@@ -110,6 +114,10 @@
         align-items: center;
         border-bottom: 1px solid lightgray;
         padding-bottom: 30px;
+
+        h3{
+          text-align: center;
+        }
 
        .requested-user-message{
           text-align: center;

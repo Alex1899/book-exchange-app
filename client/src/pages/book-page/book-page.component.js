@@ -359,7 +359,7 @@ const BookPage = ({ id }) => {
               className="add-review-div"
               onClick={() => history.push(`/book/${id}/add-review`)}
             >
-              Write a customer review
+              Add a review
             </div>
           </div>
         )}

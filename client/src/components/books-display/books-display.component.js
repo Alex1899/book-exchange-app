@@ -12,7 +12,7 @@ import CustomButton from "../custom-button/custom-button.component";
 const hm = {
   purchasedBooks: "purchased books",
   soldBooks: "sold books",
-  currentlySelling: "currently selling book",
+  currentlySelling: "currently selling books",
   allBooks: "books",
 };
 
@@ -311,7 +311,7 @@ const BooksDisplay = () => {
                       </div>
                     ))
                   ) : (
-                    <div>User has no {state.booksType} books</div>
+                    <div>User has no {hm[state.booksType]}</div>
                   )}
                 </div>
               );
