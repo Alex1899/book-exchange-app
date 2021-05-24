@@ -179,7 +179,7 @@ const BookPage = ({ id }) => {
               </div>
             )}
 
-            <div className="d-flex mb-4">
+            <div className="d-flex justify-content-center mb-4">
               {book.printLength && (
                 <div className="book-details-div">
                   <p className="mb-1">Print Length</p>
