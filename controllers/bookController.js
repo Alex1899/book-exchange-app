@@ -8,7 +8,6 @@ module.exports.addBookToDB = async (req, res, next) => {
   let data = req.body;
   const photoFile = req.body.photo;
   delete data["photo"];
-  console.log(data);
 
   try {
     const uploadedResponse = await cloudinary.uploader.upload(photoFile, {

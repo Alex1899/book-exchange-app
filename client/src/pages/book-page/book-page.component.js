@@ -263,18 +263,18 @@ const BookPage = ({ id }) => {
                         <div className="requested-user-div">
                           <div className="d-flex flex-column justify-content-center mb-4">
                             <p className="requested-user-message">
-                              The book has been requested by{" "}
+                              This book has been requested by
                               <span className="font-weight-bold">
                                 {requestedUser.username}
                               </span>
-                              . Please contact{" "}
+                              . Please contact
                               <span className="font-weight-bold">
                                 {requestedUser.username}
-                              </span>{" "}
-                              at{" "}
+                              </span>
+                              at
                               <span className="font-weight-bold">
                                 {requestedUser.email}
-                              </span>{" "}
+                              </span>
                               to arrange for exchange. Once the exchange is
                               over, you can mark the book as sold.
                             </p>
