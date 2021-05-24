@@ -3,6 +3,7 @@ import BookSearchForm from "../../components/book-search-form/book-search-form.c
 import ProfileBook from "../../components/profile-book/profile-book.component";
 import HorizontalLine from "../../components/horizontal-line/horizontal-line.component";
 import { Jumbotron, Container } from "react-bootstrap";
+import { Scrollbars } from 'react-custom-scrollbars-2';
 import "./search.styles.scss"
 
 const SearchBook = () => {
@@ -30,7 +31,7 @@ const SearchBook = () => {
         <BookSearchForm setData={(data) => setData(data)} />
 
         {/* Search Results */}
-        <div className="search-results">
+        <Scrollbars className="custom-scroller">
           {!data ? (
             <p className="text-center">Search results will appear here</p>
           ) : data.length > 0 ? (
@@ -41,9 +42,9 @@ const SearchBook = () => {
               </div>
             ))
           ) : (
-            <p>No books found with these details</p>
+            <p className="text-center">No books found with these details</p>
           )}
-        </div>
+        </Scrollbars>
       </div>
     </div>
   );

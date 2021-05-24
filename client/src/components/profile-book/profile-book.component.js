@@ -18,7 +18,7 @@ const ProfileBook = ({ data }) => {
   const onClick = () => history.push({ pathname: `/book/${book._id}` });
   return (
     <div className="profile-book-div">
-      <div className="book-image mr-2" onClick={onClick}>
+      <div className="book-image" onClick={onClick}>
         <img src={book.photoId} className="book-photo" alt="book" />
       </div>
       {/* <img src={book.photoId} className="book-photo" alt="book"/> */}

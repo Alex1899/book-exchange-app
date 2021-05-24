@@ -22,11 +22,6 @@ const BookSearchForm = ({ setData }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!author && !title && !keyword && !category) {
-      setAlert({ show: true, text: "Please use at least one search method" });
-      return;
-    }
-
     setShowSpinner(true);
     authAxios
       .post("/books/search", form)

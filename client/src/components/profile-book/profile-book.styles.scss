@@ -1,6 +1,5 @@
 .profile-book-div {
   display: flex;
-  align-items: center;
 
   .book-info-div > p {
     margin: 0;
@@ -8,6 +7,7 @@
 
   .book-image {
     width: 150px;
+    margin-right: 40px;
 
     .book-photo {
       width: 100%;
@@ -34,6 +34,7 @@
 
     .book-image {
       padding-bottom: 20px;
+      margin: 0 auto;
     }
 
     .book-info-div {

@@ -51,10 +51,14 @@ module.exports.searchBook = async (req, res, next) => {
   }
 
   console.log("find", data);
-  let filter = {}
-  Object.keys(data).forEach(key=> filter[key] = {"$regex":  data[key], "$options": "i"})
+  let filter = {};
+  if (Object.keys(data).length > 0) {
+    Object.keys(data).forEach(
+      (key) => (filter[key] = { $regex: data[key], $options: "i" })
+    );
+  }
 
-  const books = await Book.find({...filter });
+  const books = await Book.find({ ...filter });
 
   if (!books)
     return res
@@ -200,7 +204,9 @@ module.exports.getBookById = async (req, res, next) => {
 module.exports.getBookRequester = async (req, res, next) => {
   const { id } = req.params;
 
-  const user = await User.findOne({ requestedBooks: { $elemMatch: {book: id } } });
+  const user = await User.findOne({
+    requestedBooks: { $elemMatch: { book: id } },
+  });
 
   if (!user) {
     console.log(`Book ${id} has not been requested by any user`);
@@ -380,7 +386,7 @@ module.exports.getUsersBookByType = async (req, res, next) => {
       .execPopulate();
 
     books = user[type];
-    console.log(books)
+    console.log(books);
   }
 
   res.send({ books: books.reverse() });
