@@ -53,7 +53,6 @@ const SignUp = () => {
         history.push("/send-verification-link", { email });
       })
       .catch((e) => {
-        clearForm();
         handleErrors(e, (text) => setAlert({ show: true, text }));
       });
   };

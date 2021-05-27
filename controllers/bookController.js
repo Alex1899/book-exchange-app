@@ -103,8 +103,8 @@ module.exports.requestBook = async (req, res, next) => {
       text: `Hello, ${user.fullname}! \n\nYour request for the "${book.title}" book has been noted. You will be contacted by the seller within 48 hours to arrange for the exchange.\n\nThank you very much.\n\nBest regards,\nBook Exchange Team`,
     };
 
-    // sendMail(mailToOwner);
-    // sendMail(mailToBuyer);
+    sendMail(mailToOwner);
+    sendMail(mailToBuyer);
 
     res.send({ status: "Book request successfull" });
   } catch (e) {
@@ -154,8 +154,8 @@ module.exports.cancelRequest = async (req, res, next) => {
       text: `Hello, ${user.fullname}! \nYour request for "${book.title}" has been cancelled.\n\nThank you very much.\n\nBest regards,\nBook Exchange Team`,
     };
 
-    // sendMail(mailToOwner);
-    // sendMail(mailToBuyer);
+    sendMail(mailToOwner);
+    sendMail(mailToBuyer);
   } catch (e) {
     console.log(e);
     res
@@ -292,8 +292,8 @@ module.exports.markBookSold = async (req, res, next) => {
       text: `Hello, ${seller.fullname}! \nYou have sold the book "${book.title}" successfully.\n\nThank you very much.\n\nBest regards,\nBook Exchange Team`,
     };
 
-    // sendMail(mailToBuyer);
-    // sendMail(mailToSeller);
+    sendMail(mailToBuyer);
+    sendMail(mailToSeller);
 
     res.send({
       bookStatus: book.status,

@@ -12,6 +12,17 @@
     text-decoration: overline;
   }
 
+  .book-delete{ 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .delBook:hover {
+      cursor: pointer;
+      opacity: 0.7;
+    }
+  }
+
   .custom-dates-select {
     display: flex;
     flex-direction: column;

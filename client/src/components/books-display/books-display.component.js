@@ -235,9 +235,10 @@ const BooksDisplay = () => {
       </div>
       {(() => {
         switch (true) {
-          case state.booksType === "allBooks" || state.booksType === "currentlySelling":
+          case state.booksType === "allBooks" ||
+            state.booksType === "currentlySelling":
             return;
-        
+
           case !selectCustomDates:
             return (
               <div className="d-flex align-items-center mt-4 mb-4">

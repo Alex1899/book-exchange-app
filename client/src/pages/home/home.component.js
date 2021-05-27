@@ -13,7 +13,7 @@ const HomePage = () => (
     }}
   >
     <Container>
-      <h1 className="font-weight-normal">
+      <h1 className="font-weight-normal" style={{marginTop: 0, paddingTop: 0}}>
         Welcome to Southampton University Book Exchange!
       </h1>
     </Container>

@@ -6,11 +6,13 @@
   }
 
   .book-image {
-    width: 150px;
+    min-width: 100px;
+    width: 100px;
     margin-right: 40px;
 
     .book-photo {
       width: 100%;
+      height: auto;
     }
   }
   .book-title:hover,
